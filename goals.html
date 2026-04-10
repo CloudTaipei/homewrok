@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>學習目標設立</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#e8f4fd;min-height:100vh;color:#1a1a1a}
+.page{max-width:760px;margin:0 auto;padding:1.5rem 1rem 3rem}
+.header{text-align:center;margin-bottom:1.5rem}
+.header h1{font-size:22px;font-weight:800;color:#0088cc;margin-bottom:4px}
+.header p{font-size:13px;color:#5ba3c9}
+.back-link{display:inline-block;margin-bottom:1rem;font-size:13px;color:#0088cc;font-weight:600;text-decoration:none;border:2px solid #b3d9f0;padding:5px 14px;border-radius:999px}
+.back-link:hover{background:#0088cc;color:#fff}
+.child-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem}
+.child-btn{border:3px solid #b3d9f0;border-radius:16px;padding:14px;text-align:center;cursor:pointer;background:#fff;transition:all .2s;font-size:22px;box-shadow:0 2px 8px rgba(0,136,204,.08)}
+.child-btn:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,136,204,.2)}
+.child-btn.active-jung{border-color:#0088cc;background:linear-gradient(135deg,#e3f4ff,#c8e8ff)}
+.child-btn.active-vivi{border-color:#e91e8c;background:linear-gradient(135deg,#fce4ec,#f8bbd0)}
+.child-btn .cname{font-size:14px;font-weight:700;color:#0066aa;margin-top:4px}
+.child-btn.active-vivi .cname{color:#c2185b}
+.card{background:#fff;border:2px solid #d0eaf8;border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,136,204,.06)}
+.card-title{font-size:14px;font-weight:800;color:#0088cc;margin-bottom:14px}
+.subject-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.subject-tab{padding:6px 14px;border:2px solid #d0eaf8;border-radius:999px;cursor:pointer;font-size:12px;font-weight:700;color:#888;background:#fff;transition:all .15s}
+.subject-tab:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.subject-tab.sg1{border-color:#f48fb1;color:#c2185b}
+.subject-tab.sg1.active{background:#e91e8c;border-color:#e91e8c;color:#fff}
+.subject-tab.sg2{border-color:#ffcc80;color:#e65100}
+.subject-tab.sg2.active{background:#ff6d00;border-color:#ff6d00;color:#fff}
+.subject-tab.sg3{border-color:#a5d6a7;color:#2e7d32}
+.subject-tab.sg3.active{background:#388e3c;border-color:#388e3c;color:#fff}
+.subject-tab.sg4{border-color:#80deea;color:#006064}
+.subject-tab.sg4.active{background:#0097a7;border-color:#0097a7;color:#fff}
+.subject-tab.sg5{border-color:#ce93d8;color:#6a1b9a}
+.subject-tab.sg5.active{background:#7b1fa2;border-color:#7b1fa2;color:#fff}
+.unit-picker{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:#f8fbff;border:2px solid #d0eaf8;border-radius:12px;min-height:80px}
+.unit-picker-empty{font-size:13px;color:#b3d9f0;padding:8px;font-style:italic}
+.pick-block{width:64px;height:64px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;border:2px solid #d0eaf8;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.06);user-select:none}
+.pick-block:hover{transform:translateY(-3px);box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.pick-block:active{transform:translateY(0)}
+.pick-block.already{opacity:.35;cursor:not-allowed;transform:none!important}
+.pick-block.sg1{border-color:#f48fb1;background:#fce4ec}
+.pick-block.sg2{border-color:#ffcc80;background:#fff3e0}
+.pick-block.sg3{border-color:#a5d6a7;background:#e8f5e9}
+.pick-block.sg4{border-color:#80deea;background:#e0f7fa}
+.pick-block.sg5{border-color:#ce93d8;background:#f3e5f5}
+.pick-block-lbl{font-size:13px;color:#888;font-weight:600;margin-bottom:2px}
+.pick-block-unit{font-size:13px;font-weight:700;text-align:center;line-height:1.2}
+.pick-block.sg1 .pick-block-unit{color:#c2185b}
+.pick-block.sg2 .pick-block-unit{color:#e65100}
+.pick-block.sg3 .pick-block-unit{color:#2e7d32}
+.pick-block.sg4 .pick-block-unit{color:#006064}
+.pick-block.sg5 .pick-block-unit{color:#6a1b9a}
+.add-hint{font-size:11px;color:#88bbdd;margin-top:6px;font-style:italic}
+.goals-subject-block{background:#fff;border:2px solid #d0eaf8;border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,136,204,.06)}
+.goals-subject-title{font-size:13px;font-weight:700;margin-bottom:6px;padding-bottom:6px;border-bottom:2px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between}
+.gs-g1{color:#c2185b}.gs-g2{color:#e65100}.gs-g3{color:#2e7d32}.gs-g4{color:#006064}.gs-g5{color:#6a1b9a}
+.progress-bar-wrap{background:#f0f0f0;border-radius:999px;height:8px;margin-bottom:4px;overflow:hidden}
+.progress-bar{height:8px;border-radius:999px;transition:width .5s}
+.pb-g1{background:linear-gradient(90deg,#e91e8c,#f06292)}
+.pb-g2{background:linear-gradient(90deg,#ff6d00,#ffa726)}
+.pb-g3{background:linear-gradient(90deg,#388e3c,#66bb6a)}
+.pb-g4{background:linear-gradient(90deg,#0097a7,#26c6da)}
+.pb-g5{background:linear-gradient(90deg,#7b1fa2,#ab47bc)}
+.progress-label{font-size:11px;color:#aaa;text-align:right;margin-bottom:10px;font-weight:600}
+.unit-grid{display:flex;flex-wrap:wrap;gap:8px}
+.unit-block.dragging{opacity:.4;transform:scale(.95)}
+.unit-block.drag-over{box-shadow:0 0 0 3px #0088cc!important}
+.unit-block{width:64px;height:64px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid #d0eaf8;background:#f8fbff;cursor:pointer;transition:all .2s;user-select:none;position:relative;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.unit-block:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.unit-block.sg1{border-color:#f48fb1;background:#fce4ec}
+.unit-block.sg2{border-color:#ffcc80;background:#fff3e0}
+.unit-block.sg3{border-color:#a5d6a7;background:#e8f5e9}
+.unit-block.sg4{border-color:#80deea;background:#e0f7fa}
+.unit-block.sg5{border-color:#ce93d8;background:#f3e5f5}
+.unit-block .unit-block-lbl{font-size:13px;color:#888;font-weight:600;margin-bottom:2px}
+.unit-block .unit-check{font-size:14px;color:transparent;margin-bottom:1px}
+.unit-block .unit-label{font-size:11px;font-weight:700;text-align:center;line-height:1.2}
+.unit-block .unit-date{font-size:9px;color:#aaa;margin-top:1px}
+.unit-block.sg1 .unit-label{color:#c2185b}
+.unit-block.sg2 .unit-label{color:#e65100}
+.unit-block.sg3 .unit-label{color:#2e7d32}
+.unit-block.sg4 .unit-label{color:#006064}
+.unit-block.sg5 .unit-label{color:#6a1b9a}
+/* 完成狀態：填滿發光 */
+.unit-block.sg1.done{background:linear-gradient(135deg,#e91e8c,#f06292);border-color:#e91e8c;box-shadow:0 0 10px rgba(233,30,140,.4)}
+.unit-block.sg2.done{background:linear-gradient(135deg,#ff6d00,#ffa726);border-color:#ff6d00;box-shadow:0 0 10px rgba(255,109,0,.4)}
+.unit-block.sg3.done{background:linear-gradient(135deg,#388e3c,#66bb6a);border-color:#388e3c;box-shadow:0 0 10px rgba(56,142,60,.4)}
+.unit-block.sg4.done{background:linear-gradient(135deg,#0097a7,#26c6da);border-color:#0097a7;box-shadow:0 0 10px rgba(0,151,167,.4)}
+.unit-block.sg5.done{background:linear-gradient(135deg,#7b1fa2,#ab47bc);border-color:#7b1fa2;box-shadow:0 0 10px rgba(123,31,162,.4)}
+.unit-block.done .unit-check{color:#fff}
+.unit-block.done .unit-label{color:#fff!important}
+.unit-block.done .unit-block-lbl{color:rgba(255,255,255,.8)}
+.unit-block.done .unit-date{color:rgba(255,255,255,.7)}
+.del-btn{position:absolute;top:-7px;right:-7px;width:20px;height:20px;border-radius:50%;background:#ff5252;border:2px solid #fff;color:#fff;font-size:11px;cursor:pointer;display:none;align-items:center;justify-content:center;font-weight:700;z-index:10;box-shadow:0 2px 4px rgba(0,0,0,.2)}
+.unit-block:hover .del-btn{display:flex}
+.empty-msg{text-align:center;padding:2rem;color:#b3d9f0;font-size:14px}
+.loading{text-align:center;padding:2rem;color:#0088cc;font-size:13px;font-weight:600}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0088cc;color:#fff;padding:10px 24px;border-radius:999px;font-size:13px;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 4px 16px rgba(0,136,204,.4);white-space:nowrap;z-index:999}
+.warn{font-size:12px;color:#e91e8c;font-weight:700;margin-top:6px;display:none}
+</style>
+</head>
+<body>
+<div class="page">
+  <a class="back-link" href="index.html">← 回到學習紀錄</a>
+  <div class="header">
+    <h1>🎯 學習目標設立</h1>
+    <p>選科目 → 點方塊新增目標，完成後方塊變色</p>
+  </div>
+  <div class="child-row">
+    <div class="child-btn" id="btn-jung" onclick="switchChild('Jung')">🐨<div class="cname">Jung</div></div>
+    <div class="child-btn" id="btn-vivi" onclick="switchChild('Vivi')">🐰<div class="cname">Vivi</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">➕ 新增單元目標</div>
+    <div class="warn" id="warn-msg">請先選擇孩子！</div>
+    <div class="subject-tabs">
+      <div class="subject-tab sg1" onclick="selectSubjectTab(this,'國語－課內')">國語－課內</div>
+      <div class="subject-tab sg1" onclick="selectSubjectTab(this,'國語－閱讀測驗')">國語－閱讀測驗</div>
+      <div class="subject-tab sg1" onclick="selectSubjectTab(this,'國語－古文閱讀測驗')">古文閱讀測驗</div>
+      <div class="subject-tab sg1" onclick="selectSubjectTab(this,'國語－作文')">國語－作文</div>
+      <div class="subject-tab sg2" onclick="selectSubjectTab(this,'數學－課內')">數學－課內</div>
+      <div class="subject-tab sg2" onclick="selectSubjectTab(this,'數學－超前')">數學－超前</div>
+      <div class="subject-tab sg3" onclick="selectSubjectTab(this,'自然')">自然</div>
+      <div class="subject-tab sg3" onclick="selectSubjectTab(this,'生物')">生物</div>
+      <div class="subject-tab sg3" onclick="selectSubjectTab(this,'化學')">化學</div>
+      <div class="subject-tab sg3" onclick="selectSubjectTab(this,'物理')">物理</div>
+      <div class="subject-tab sg4" onclick="selectSubjectTab(this,'英文單字')">英文單字</div>
+      <div class="subject-tab sg4" onclick="selectSubjectTab(this,'英文閱讀測驗')">英文閱讀測驗</div>
+      <div class="subject-tab sg4" onclick="selectSubjectTab(this,'英文－課內')">英文－課內</div>
+      <div class="subject-tab sg4" onclick="selectSubjectTab(this,'英文－超前')">英文－超前</div>
+      <div class="subject-tab sg4" onclick="selectSubjectTab(this,'英文作文')">英文作文</div>
+      <div class="subject-tab sg5" onclick="selectSubjectTab(this,'學校作業')">學校作業</div>
+      <div class="subject-tab sg5" onclick="selectSubjectTab(this,'社會')">社會</div>
+      <div class="subject-tab sg5" onclick="selectSubjectTab(this,'資訊')">資訊</div>
+      <div class="subject-tab sg5" onclick="selectSubjectTab(this,'音樂')">音樂</div>
+      <div class="subject-tab sg5" onclick="selectSubjectTab(this,'課外閱讀')">課外閱讀</div>
+    </div>
+    <div class="unit-picker" id="unit-picker"><div class="unit-picker-empty">← 先點選上方科目</div></div>
+    <div class="add-hint" id="add-hint"></div>
+  </div>
+  <div id="goals-area"><div class="empty-msg">請先選擇 Jung 或 Vivi</div></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+var dragSrcSubject='',dragSrcUnit='';
+function dragStart(e){dragSrcSubject=e.currentTarget.dataset.subject;dragSrcUnit=e.currentTarget.dataset.unit;e.currentTarget.classList.add('dragging');e.dataTransfer.effectAllowed='move';}
+function dragEnd(e){e.currentTarget.classList.remove('dragging');document.querySelectorAll('.unit-block').forEach(function(b){b.classList.remove('drag-over');});}
+function dragOver(e){e.preventDefault();e.currentTarget.classList.add('drag-over');return false;}
+function dropBlock(e,targetSubject,targetUnit){
+  e.stopPropagation();e.currentTarget.classList.remove('drag-over');
+  if(dragSrcSubject===targetSubject&&dragSrcUnit===targetUnit) return;
+  var srcIdx=goals.findIndex(function(g){return g.subject===dragSrcSubject&&g.unit===dragSrcUnit;});
+  var tgtIdx=goals.findIndex(function(g){return g.subject===targetSubject&&g.unit===targetUnit;});
+  if(srcIdx<0||tgtIdx<0) return;
+  var moved=goals.splice(srcIdx,1)[0];
+  goals.splice(tgtIdx,0,moved);
+  render();
+  saveOrder();
+}
+async function saveOrder(){
+  try{
+    var url=SCRIPT_URL+'?action=saveOrder&child='+encodeURIComponent(currentChild)
+      +'&order='+encodeURIComponent(JSON.stringify(goals.map(function(g){return{subject:g.subject,unit:g.unit};})));
+    await fetch(url,{method:'GET',mode:'no-cors'});
+  }catch(e){}
+}
+var SCRIPT_URL='https://script.google.com/macros/s/AKfycbwm2Zsoexr5DrEt_2gQQVPA1H1AUW0_gVPEsVLmQSu_h7MAZGdCoTSsh3aPZXtWEGb_/exec';
+var SUBJECT_GROUP={'國語－課內':'sg1','國語－閱讀測驗':'sg1','國語－古文閱讀測驗':'sg1','國語－作文':'sg1','數學－課內':'sg2','數學－超前':'sg2','自然':'sg3','生物':'sg3','化學':'sg3','物理':'sg3','英文單字':'sg4','英文閱讀測驗':'sg4','英文－課內':'sg4','英文－超前':'sg4','英文作文':'sg4','學校作業':'sg5','社會':'sg5','資訊':'sg5','音樂':'sg5','課外閱讀':'sg5'};
+var GROUP_LABEL={'sg1':'gs-g1','sg2':'gs-g2','sg3':'gs-g3','sg4':'gs-g4','sg5':'gs-g5'};
+var GROUP_PB={'sg1':'pb-g1','sg2':'pb-g2','sg3':'pb-g3','sg4':'pb-g4','sg5':'pb-g5'};
+var currentChild='',currentSubject='',goals=[];
+
+function makeUnits(c,s){var a=[];for(var i=1;i<=c;i++)a.push(String(i));for(var i=1;i<=c;i++)for(var j=1;j<=s;j++)a.push(i+'-'+j);return a;}
+function makeWeekUnits(n){var a=[];for(var i=1;i<=n;i++)a.push('Week'+i);return a;}
+function makeBookUnits(n){var a=[];for(var i=1;i<=n;i++)a.push('第'+i+'本');return a;}
+var UNIT_MAP={'國語－課內':makeUnits(12,6),'國語－閱讀測驗':makeUnits(12,6),'國語－古文閱讀測驗':makeUnits(12,6),'國語－作文':makeUnits(12,6),'數學－課內':makeUnits(12,6),'數學－超前':makeUnits(12,6),'自然':makeUnits(12,6),'生物':makeUnits(12,6),'化學':makeUnits(12,6),'物理':makeUnits(12,6),'英文單字':makeUnits(12,6),'英文閱讀測驗':makeUnits(12,6),'英文－課內':makeUnits(12,6),'英文－超前':makeUnits(12,6),'英文作文':makeUnits(12,6),'學校作業':makeUnits(12,6),'社會':makeUnits(12,6),'資訊':makeUnits(12,6),'音樂':makeUnits(12,6),'課外閱讀':makeUnits(12,6)};
+
+function switchChild(n){
+  currentChild=n;
+  document.getElementById('btn-jung').className='child-btn'+(n==='Jung'?' active-jung':'');
+  document.getElementById('btn-vivi').className='child-btn'+(n==='Vivi'?' active-vivi':'');
+  document.getElementById('warn-msg').style.display='none';
+  loadGoals();
+}
+
+function selectSubjectTab(el,subject){
+  if(!currentChild){document.getElementById('warn-msg').style.display='block';return;}
+  currentSubject=subject;
+  document.querySelectorAll('.subject-tab').forEach(function(t){t.classList.remove('active');});
+  el.classList.add('active');
+  renderUnitPicker();
+}
+
+function renderUnitPicker(){
+  var picker=document.getElementById('unit-picker');
+  if(!currentSubject){picker.innerHTML='<div class="unit-picker-empty">← 先點選上方科目</div>';return;}
+  var units=UNIT_MAP[currentSubject]||makeUnits(12,6);
+  var sg=SUBJECT_GROUP[currentSubject]||'';
+  var existing=new Set(goals.filter(function(g){return g.subject===currentSubject;}).map(function(g){return g.unit;}));
+  picker.innerHTML=units.map(function(u){
+    var a=existing.has(u)?'already':'';
+    return '<div class="pick-block '+sg+' '+a+'" onclick="addUnit(\''+u.replace(/'/g,"\\'")+'\')"><div class="pick-block-lbl">單元</div><div class="pick-block-unit">'+u+'</div></div>';
+  }).join('');
+  document.getElementById('add-hint').textContent='點方塊新增，已加入的會變淡';
+}
+
+async function addUnit(unit){
+  if(!currentChild||!currentSubject) return;
+  if(goals.some(function(g){return g.subject===currentSubject&&g.unit===unit;})){showToast('已加入！');return;}
+  goals.push({subject:currentSubject,unit:unit,done:false,doneAt:''});
+  renderUnitPicker();render();
+  showToast('已新增 單元'+unit+' ✓');
+  try{await fetch(SCRIPT_URL+'?action=saveGoal&child='+encodeURIComponent(currentChild)+'&subject='+encodeURIComponent(currentSubject)+'&unit='+encodeURIComponent(unit),{method:'GET',mode:'no-cors'});}catch(e){}
+}
+
+async function loadGoals(){
+  document.getElementById('goals-area').innerHTML='<div class="loading">載入中…</div>';
+  try{
+    var res=await fetch(SCRIPT_URL+'?action=readGoals&child='+encodeURIComponent(currentChild)+'&t='+Date.now());
+    var json=await res.json();
+    goals=(json.goals||[]).filter(function(g){return g.subject&&g.unit&&g.unit.indexOf('GMT')<0;});
+    render();if(currentSubject)renderUnitPicker();
+  }catch(e){document.getElementById('goals-area').innerHTML='<div class="empty-msg">載入失敗，請重試</div>';}
+}
+
+function render(){
+  var area=document.getElementById('goals-area');
+  if(!goals.length){area.innerHTML='<div class="empty-msg">還沒有目標，點上方科目新增吧！🎯</div>';return;}
+  var bySubject={},subOrder=[];
+  goals.forEach(function(g){if(!bySubject[g.subject]){bySubject[g.subject]=[];subOrder.push(g.subject);}bySubject[g.subject].push(g);});
+  var html='';
+  subOrder.forEach(function(subject){
+    var units=bySubject[subject];
+    var doneCount=units.filter(function(g){return g.done;}).length;
+    var pct=units.length?Math.round(doneCount/units.length*100):0;
+    var sg=SUBJECT_GROUP[subject]||'sg1';
+    html+='<div class="goals-subject-block">';
+    html+='<div class="goals-subject-title '+GROUP_LABEL[sg]+'">'+subject+'<span style="font-size:11px;color:#aaa;font-weight:600">'+doneCount+'/'+units.length+'</span></div>';
+    html+='<div class="progress-bar-wrap"><div class="progress-bar '+GROUP_PB[sg]+'" style="width:'+pct+'%"></div></div>';
+    html+='<div class="progress-label">'+pct+'% 完成</div>';
+    html+='<div class="unit-grid">';
+    units.forEach(function(g){
+      var bc=g.done?'done':'';
+      var se=g.subject.replace(/'/g,"\\'"),ue=g.unit.replace(/'/g,"\\'");
+      html+='<div class="unit-block '+sg+' '+bc+'" onclick="toggleDone(\''+se+'\',\''+ue+'\')">'
+        +'<div class="unit-check">'+(g.done?'✓':'')+'</div>'
+        +'<div class="unit-block-lbl">單元</div>'
+        +'<div class="unit-label">'+g.unit+'</div>'
+        +'<div class="unit-date">'+(g.doneAt||'')+'</div>'
+        +'<button class="del-btn" onclick="event.stopPropagation();deleteGoal(\''+se+'\',\''+ue+'\')">×</button>'
+        +'</div>';
+    });
+    html+='</div></div>';
+  });
+  area.innerHTML=html;
+}
+
+async function toggleDone(subject,unit){
+  var g=goals.find(function(x){return x.subject===subject&&x.unit===unit;});
+  if(!g) return;
+  g.done=!g.done;g.doneAt=g.done?new Date().toLocaleDateString('zh-TW'):'';
+  render();showToast(g.done?'✓ 完成！':'↩ 取消完成');
+  try{await fetch(SCRIPT_URL+'?action='+(g.done?'markDone':'unmarkDone')+'&child='+encodeURIComponent(currentChild)+'&subject='+encodeURIComponent(subject)+'&unit='+encodeURIComponent(unit),{method:'GET',mode:'no-cors'});}catch(e){}
+}
+
+async function deleteGoal(subject,unit){
+  if(!confirm('確定刪除「'+subject+' '+unit+'」？')) return;
+  goals=goals.filter(function(g){return !(g.subject===subject&&g.unit===unit);});
+  render();if(currentSubject===subject)renderUnitPicker();showToast('已刪除');
+  try{await fetch(SCRIPT_URL+'?action=deleteGoal&child='+encodeURIComponent(currentChild)+'&subject='+encodeURIComponent(subject)+'&unit='+encodeURIComponent(unit),{method:'GET',mode:'no-cors'});}catch(e){}
+}
+
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.style.opacity=1;setTimeout(function(){t.style.opacity=0;},2500);}
+</script>
+</body>
+</html>
