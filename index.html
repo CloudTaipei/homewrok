@@ -860,12 +860,18 @@ function updatePending(){
   else{p.textContent='本週已達標 ✓';p.className='timer-pending ok';}
 }
 
+var _finishing=false;
 function finishTimer(){
+  if(_finishing) return; // 防止重複送出
+  _finishing=true;
   clearInterval(timerInterval);timerInterval=null;timerRunning=false;
   var elapsed=timerTotal-timerRemaining+timerOvertimeSec;
   var mins=Math.max(1,Math.round(elapsed/60));
   var subject=activeSubject||activeOtherSubject;
   var progress=activeUnit||(document.getElementById('progress-input').value.trim());
+  // 立刻禁用按鈕防止重複點擊
+  var btns=document.getElementById('timer-btns');
+  if(btns) btns.innerHTML='<div style="text-align:center;color:#0088cc;font-size:13px;font-weight:600">記錄中…</div>';
   sendRecord(subject,mins,progress);
 }
 
@@ -876,6 +882,7 @@ async function sendRecord(subject,minutes,progress){
     // 完成後清除該單元的累積時間
     var key=subject+'::'+activeUnit;
     delete unitTimers[key];
+    _finishing=false;
     saveTimerStateLocal();
     // 如果是目標單元，標記完成
     if(activeSubject&&activeUnit){
