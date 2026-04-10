@@ -8,38 +8,144 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#e8f4fd;min-height:100vh;color:#1a1a1a}
 .page{max-width:900px;margin:0 auto;padding:1.5rem 1rem 3rem}
-
-/* 頭部 */
 .header{text-align:center;margin-bottom:1.5rem}
 .header-top{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px}
-.doraemon-icon{font-size:36px}
 .header h1{font-size:24px;font-weight:800;color:#0088cc}
 .header p{font-size:13px;color:#5ba3c9}
+.header-links{display:flex;justify-content:center;gap:16px;margin-top:8px}
+.header-links a{font-size:12px;color:#0088cc;font-weight:600;text-decoration:none}
 
-/* 角色選擇 */
+/* 今日總覽 */
+.today-banner{background:linear-gradient(135deg,#0088cc,#00aadd);border-radius:20px;padding:1.25rem;margin-bottom:1.5rem;color:#fff;box-shadow:0 4px 16px rgba(0,136,204,.3)}
+.today-banner h3{font-size:16px;font-weight:800;margin-bottom:10px}
+.today-total{font-size:36px;font-weight:800;margin-bottom:4px}
+.today-lbl{font-size:12px;opacity:.8;font-weight:600}
+.today-subjects{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.today-tag{background:rgba(255,255,255,.25);border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600}
+.today-empty{font-size:13px;opacity:.7;font-style:italic}
+
+/* 孩子選擇 */
 .child-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem}
-.child-card{border:3px solid #b3d9f0;border-radius:20px;padding:1rem;text-align:center;cursor:pointer;background:#fff;transition:all .2s;box-shadow:0 3px 10px rgba(0,136,204,.1)}
+.child-card{border:3px solid #b3d9f0;border-radius:16px;padding:1rem;text-align:center;cursor:pointer;background:#fff;transition:all .2s;box-shadow:0 3px 10px rgba(0,136,204,.1)}
 .child-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,136,204,.2)}
-.child-card.selected{border-color:#0088cc;background:linear-gradient(135deg,#e3f4ff,#c8e8ff);box-shadow:0 4px 16px rgba(0,136,204,.3)}
-.child-card.vivi.selected{border-color:#e91e8c;background:linear-gradient(135deg,#fce4ec,#f8bbd0);box-shadow:0 4px 16px rgba(233,30,140,.3)}
+.child-card.selected{border-color:#0088cc;background:linear-gradient(135deg,#e3f4ff,#c8e8ff)}
+.child-card.vivi.selected{border-color:#e91e8c;background:linear-gradient(135deg,#fce4ec,#f8bbd0)}
 .child-card .avatar{font-size:36px;margin-bottom:6px}
 .child-card .name{font-size:14px;font-weight:700;color:#0066aa}
-.child-card .role{font-size:11px;color:#88bbdd;margin-top:2px}
+.child-card.vivi.selected .name{color:#c2185b}
 
-/* 卡片容器 */
-.card-wrap{background:rgba(255,255,255,.85);border-radius:20px;padding:1.25rem;margin-bottom:1.25rem;box-shadow:0 3px 16px rgba(0,136,204,.1);border:2px solid #d0eaf8}
+/* 目標方塊區 */
+.goals-area{margin-bottom:1.5rem}
+.goals-subject-block{background:#fff;border:2px solid #d0eaf8;border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,136,204,.06)}
+.goals-subject-title{font-size:13px;font-weight:700;color:#0066aa;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.goals-progress-wrap{background:#e3f4ff;border-radius:999px;height:7px;margin-bottom:10px;overflow:hidden}
+.goals-progress-bar{height:7px;border-radius:999px;background:linear-gradient(90deg,#0088cc,#00aadd);transition:width .5s}
+.goals-progress-bar.vivi-bar{background:linear-gradient(90deg,#e91e8c,#f06292)}
+.unit-grid{display:flex;flex-wrap:wrap;gap:8px}
+.unit-block.dragging{opacity:.4;transform:scale(.95)}
+.unit-block.drag-over{box-shadow:0 0 0 3px #0088cc!important}
+.unit-block{width:64px;height:64px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid #b3d9f0;background:#f0f8ff;cursor:pointer;transition:all .2s;user-select:none;position:relative}
+.unit-block:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,136,204,.25)}
+.sc-g1{border-color:#f48fb1;background:#fff5f8}
+.sc-g1 .unit-label{color:#c2185b}
+.sc-g2{border-color:#ffcc80;background:#fffaf0}
+.sc-g2 .unit-label{color:#e65100}
+.sc-g3{border-color:#a5d6a7;background:#f4fbf4}
+.sc-g3 .unit-label{color:#2e7d32}
+.sc-g4{border-color:#80deea;background:#f0fbfd}
+.sc-g4 .unit-label{color:#006064}
+.sc-g5{border-color:#ce93d8;background:#faf4ff}
+.sc-g5 .unit-label{color:#6a1b9a}
+/* 選中狀態：鮮明邊框+放大 */
+/* 狀態1：未選取（柔和底色，各科顏色） */
+/* 狀態2：選取中（橘色邊框發光） */
+.unit-block.active-timer{
+  transform:scale(1.1);z-index:2;
+  border:3px solid #ff8f00!important;
+  box-shadow:0 0 0 4px rgba(255,143,0,.3),0 6px 20px rgba(255,143,0,.3)!important;
+  background:#fff8e1!important;
+}
+.unit-block.active-timer .unit-block-lbl{color:#e65100!important;font-weight:800}
+.unit-block.active-timer .unit-label{color:#e65100!important;font-weight:800}
+.unit-block.active-timer .unit-check{color:#ff8f00!important}
+/* 狀態3：已完成（填滿漸層＋白字） */
+.sc-g1.done,.sc-g1.done-vivi{background:linear-gradient(135deg,#e91e8c,#f06292)!important;border-color:#e91e8c!important;box-shadow:0 0 12px rgba(233,30,140,.5)!important}
+.sc-g2.done,.sc-g2.done-vivi{background:linear-gradient(135deg,#ff6d00,#ffa726)!important;border-color:#ff6d00!important;box-shadow:0 0 12px rgba(255,109,0,.5)!important}
+.sc-g3.done,.sc-g3.done-vivi{background:linear-gradient(135deg,#388e3c,#66bb6a)!important;border-color:#388e3c!important;box-shadow:0 0 12px rgba(56,142,60,.5)!important}
+.sc-g4.done,.sc-g4.done-vivi{background:linear-gradient(135deg,#0097a7,#26c6da)!important;border-color:#0097a7!important;box-shadow:0 0 12px rgba(0,151,167,.5)!important}
+.sc-g5.done,.sc-g5.done-vivi{background:linear-gradient(135deg,#7b1fa2,#ab47bc)!important;border-color:#7b1fa2!important;box-shadow:0 0 12px rgba(123,31,162,.5)!important}
+.sc-g1.done .unit-label,.sc-g2.done .unit-label,.sc-g3.done .unit-label,.sc-g4.done .unit-label,.sc-g5.done .unit-label,
+.sc-g1.done-vivi .unit-label,.sc-g2.done-vivi .unit-label,.sc-g3.done-vivi .unit-label,.sc-g4.done-vivi .unit-label,.sc-g5.done-vivi .unit-label,
+.unit-block.done .unit-label,.unit-block.done-vivi .unit-label{color:#fff!important}
+.sc-g1.done .unit-block-lbl,.sc-g2.done .unit-block-lbl,.sc-g3.done .unit-block-lbl,.sc-g4.done .unit-block-lbl,.sc-g5.done .unit-block-lbl,
+.sc-g1.done-vivi .unit-block-lbl,.sc-g2.done-vivi .unit-block-lbl,.sc-g3.done-vivi .unit-block-lbl,.sc-g4.done-vivi .unit-block-lbl,.sc-g5.done-vivi .unit-block-lbl,
+.unit-block.done .unit-block-lbl,.unit-block.done-vivi .unit-block-lbl{color:rgba(255,255,255,.85)!important}
+.sc-g1.done .unit-check,.sc-g2.done .unit-check,.sc-g3.done .unit-check,.sc-g4.done .unit-check,.sc-g5.done .unit-check,
+.sc-g1.done-vivi .unit-check,.sc-g2.done-vivi .unit-check,.sc-g3.done-vivi .unit-check,.sc-g4.done-vivi .unit-check,.sc-g5.done-vivi .unit-check{color:#fff!important}
+/* 共用 */
+.unit-block .unit-block-lbl{font-size:13px;color:#888;font-weight:600;margin-bottom:2px}
+.unit-block .unit-label{font-size:13px!important;font-weight:700}
+.unit-block .unit-check{font-size:16px;margin-bottom:2px}
+/* 水位效果 */
+.unit-block{overflow:hidden;position:relative}
+.unit-water{position:absolute;bottom:0;left:0;width:100%;transition:height .8s ease;z-index:0;border-radius:0 0 9px 9px;opacity:.55}
+.unit-block>*:not(.unit-water){position:relative;z-index:1}
+/* 底色極淺 */
+.sc-g1{border-color:#f48fb1;background:#fff5f8!important}
+.sc-g2{border-color:#ffcc80;background:#fffaf0!important}
+.sc-g3{border-color:#a5d6a7;background:#f4fbf4!important}
+.sc-g4{border-color:#80deea;background:#f0fbfd!important}
+.sc-g5{border-color:#ce93d8;background:#faf4ff!important}
+/* 水位顏色 */
+.sc-g1 .unit-water{background:#f48fb1}
+.sc-g2 .unit-water{background:#ffb74d}
+.sc-g3 .unit-water{background:#81c784}
+.sc-g4 .unit-water{background:#4dd0e1}
+.sc-g5 .unit-water{background:#ba68c8}
+.unit-block.done .unit-water{display:none}
+.unit-block.active-timer .unit-water{transition:height .3s linear;opacity:.7}
+.unit-block.active-timer{border-color:#ff8f00;background:#fff3e0;box-shadow:0 0 0 3px rgba(255,143,0,.3)}
+.unit-block.done{background:linear-gradient(135deg,#0088cc,#00aadd);border-color:#0088cc;box-shadow:0 3px 10px rgba(0,136,204,.3)}
+.unit-block.done-vivi{background:linear-gradient(135deg,#e91e8c,#f06292);border-color:#e91e8c;box-shadow:0 3px 10px rgba(233,30,140,.3)}
+.unit-check{font-size:16px;color:transparent;margin-bottom:1px}
+.unit-block.done .unit-check,.unit-block.done-vivi .unit-check{color:#fff}
+.unit-label{font-size:11px;font-weight:700;color:#0066aa;text-align:center;line-height:1.3}
+.unit-block.done .unit-label,.unit-block.done-vivi .unit-label{color:#fff}
+.unit-date{font-size:9px;color:#88bbdd;margin-top:1px}
+.unit-block.done .unit-date,.unit-block.done-vivi .unit-date{color:rgba(255,255,255,.8)}
+.no-goals-hint{font-size:12px;color:#b3d9f0;text-align:center;padding:1rem;font-style:italic}
 
-.section{margin-bottom:1.25rem}
-.sec-label{font-size:13px;font-weight:700;color:#0088cc;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.group-label{font-size:11px;font-weight:700;color:#88bbdd;letter-spacing:.06em;margin:10px 0 6px;text-transform:uppercase}
+/* 計時器 */
+.timer-box{background:#fff;border:2px solid #b3d9f0;border-radius:16px;padding:16px;margin-bottom:1.25rem;display:none}
+.timer-box.running{border-color:#0088cc;background:linear-gradient(135deg,#e3f4ff,#f0f8ff)}
+.timer-box.overtime{border-color:#43a047;background:linear-gradient(135deg,#e8f5e9,#f1f8e9)}
+.timer-box.done{border-color:#43a047;background:#e8f5e9}
+.timer-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.timer-subject-label{font-size:15px;font-weight:800;color:#0066aa}
+/* 時間選擇緊靠計時器 */
+.timer-time-row{display:flex;gap:6px;flex-wrap:wrap}
+.timer-time-chip{padding:5px 12px;border-radius:999px;border:2px solid #b3d9f0;cursor:pointer;font-size:12px;font-weight:700;color:#0066aa;background:#fff;transition:all .15s}
+.timer-time-chip.sel{background:#0088cc;border-color:#0088cc;color:#fff}
+.timer-bar-wrap{background:#e3f4ff;border-radius:999px;height:18px;margin-bottom:12px;overflow:hidden}
+.timer-bar{height:18px;border-radius:999px;background:linear-gradient(90deg,#0088cc,#00aadd);transition:width .5s linear;box-shadow:0 0 10px rgba(0,136,204,.4)}
+.timer-bar.ot{background:linear-gradient(90deg,#43a047,#66bb6a);box-shadow:0 0 10px rgba(67,160,71,.4)}
+.timer-time-display{font-size:52px;font-weight:800;font-variant-numeric:tabular-nums;color:#0088cc;text-align:center;line-height:1;margin-bottom:14px}
+.timer-time-display.ot{color:#2e7d32}
+.timer-btns{display:flex;gap:8px}
+.timer-btn{flex:1;padding:10px;border-radius:999px;border:2px solid #0088cc;font-size:14px;font-weight:700;cursor:pointer;background:#fff;color:#0088cc;transition:all .15s}
+.timer-btn.primary{background:linear-gradient(135deg,#0088cc,#00aadd);border-color:transparent;color:#fff;box-shadow:0 3px 10px rgba(0,136,204,.3)}
+.timer-btn.finish{background:linear-gradient(135deg,#43a047,#66bb6a);border-color:transparent;color:#fff;box-shadow:0 3px 10px rgba(67,160,71,.3)}
+.timer-pending{font-size:11px;color:#f57c00;font-weight:600;margin-top:8px;text-align:center}
+.timer-pending.ok{color:#2e7d32}
+.no-child-warn{background:#fff3e0;border:2px solid #ffb300;border-radius:12px;padding:10px 14px;margin-bottom:10px;font-size:13px;font-weight:700;color:#e65100;text-align:center;display:none}
+
+/* 其他科目（沒有目標的） */
+.other-section{background:#fff;border:2px solid #d0eaf8;border-radius:16px;padding:14px;margin-bottom:1.25rem}
+.sec-label{font-size:13px;font-weight:700;color:#0088cc;margin-bottom:8px}
+.group-label{font-size:11px;font-weight:700;color:#aaa;letter-spacing:.06em;margin:10px 0 6px}
 .chips{display:flex;flex-wrap:wrap;gap:7px}
-.chip{padding:7px 15px;border-radius:999px;border:2px solid #b3d9f0;cursor:pointer;font-size:13px;color:#0066aa;background:#fff;transition:all .15s;user-select:none;font-weight:600;box-shadow:0 2px 6px rgba(0,136,204,.08)}
-.chip:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,136,204,.15)}
-.chip.sel-time{background:#0088cc;border-color:#0088cc;color:#fff;box-shadow:0 3px 10px rgba(0,136,204,.4)}
-.chip.sel-way{background:#00aadd;border-color:#00aadd;color:#fff;box-shadow:0 3px 10px rgba(0,170,221,.4)}
-.chip.sel-subject{background:#0066aa;border-color:#0066aa;color:#fff;box-shadow:0 3px 10px rgba(0,102,170,.4)}
-
-/* 科目色彩分組 */
+.chip{padding:7px 15px;border-radius:999px;border:2px solid #b3d9f0;cursor:pointer;font-size:13px;color:#0066aa;background:#fff;transition:all .15s;font-weight:600}
+.chip:hover{transform:translateY(-1px)}
 .chip.g1{border-color:#f48fb1;color:#c2185b;background:#fce4ec}
 .chip.g1.sel-subject{background:#e91e8c;border-color:#e91e8c;color:#fff}
 .chip.g2{border-color:#ffcc80;color:#e65100;background:#fff3e0}
@@ -50,56 +156,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .chip.g4.sel-subject{background:#0097a7;border-color:#0097a7;color:#fff}
 .chip.g5{border-color:#ce93d8;color:#4a148c;background:#f3e5f5}
 .chip.g5.sel-subject{background:#7b1fa2;border-color:#7b1fa2;color:#fff}
+.chip.sel-way{background:linear-gradient(135deg,#80cbc4,#a5d6a7);border-color:transparent;color:#fff}
 
-.progress-wrap{margin-bottom:1rem}
-.progress-wrap input{width:100%;padding:11px 14px;border:2px solid #b3d9f0;border-radius:12px;font-size:14px;color:#1a1a1a;background:#fff;outline:none;transition:border-color .2s}
-.progress-wrap input:focus{border-color:#0088cc}
-
-.err{font-size:13px;color:#e91e8c;margin-bottom:10px;display:none;font-weight:600}
-.submit-btn{width:100%;padding:13px;border-radius:999px;border:none;font-size:15px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,#0088cc,#00aadd);color:#fff;box-shadow:0 4px 16px rgba(0,136,204,.4);transition:all .2s;letter-spacing:.04em}
-.submit-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,136,204,.5)}
-.submit-btn:disabled{background:#e0e0e0;color:#aaa;cursor:not-allowed;transform:none;box-shadow:none}
+.ways-section{background:#fff;border:2px solid #d0eaf8;border-radius:16px;padding:14px;margin-bottom:1.25rem}
+.progress-input{width:100%;padding:10px 14px;border:2px solid #b3d9f0;border-radius:12px;font-size:14px;color:#1a1a1a;background:#fff;outline:none;margin-top:8px}
+.progress-input:focus{border-color:#0088cc}
 
 .success{display:none;text-align:center;padding:3rem 1rem}
 .success .big{font-size:64px;margin-bottom:12px;animation:bounce .6s ease}
 @keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
 .success h2{font-size:22px;font-weight:800;color:#0088cc;margin-bottom:8px}
 .success p{font-size:15px;color:#5ba3c9;line-height:1.7;margin-bottom:2rem}
-.success button{padding:10px 28px;border-radius:999px;border:none;background:linear-gradient(135deg,#0088cc,#00aadd);color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(0,136,204,.3)}
+.success button{padding:10px 28px;border-radius:999px;border:none;background:linear-gradient(135deg,#0088cc,#00aadd);color:#fff;font-size:14px;font-weight:700;cursor:pointer}
 
-/* 計時器 */
-.timer-section{display:none;margin-bottom:1.25rem}
-.timer-cards{display:flex;flex-direction:column;gap:10px}
-.tc{background:#fff;border:2px solid #b3d9f0;border-radius:16px;padding:14px 16px;transition:all .2s;box-shadow:0 2px 8px rgba(0,136,204,.08)}
-.tc.active{border-color:#0088cc;background:linear-gradient(135deg,#e3f4ff,#f0f8ff);box-shadow:0 4px 16px rgba(0,136,204,.2)}
-.tc.overtime{border-color:#43a047;background:linear-gradient(135deg,#e8f5e9,#f1f8e9);box-shadow:0 4px 16px rgba(67,160,71,.2)}
-.tc.done{border-color:#43a047;background:#e8f5e9;opacity:.9}
-.tc-top{display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:10px;gap:4px}
-.tc-subject{font-size:15px;font-weight:700;color:#0066aa}
-.tc-time{font-size:44px;font-weight:800;font-variant-numeric:tabular-nums;color:#0088cc;line-height:1.1}
-.tc-time.ot{color:#2e7d32;font-size:44px}
-.tc-bar-wrap{background:#e3f4ff;border-radius:999px;height:18px;margin-bottom:14px;overflow:hidden}
-.tc-bar{height:18px;border-radius:999px;background:linear-gradient(90deg,#0088cc,#00aadd);transition:width .5s linear;position:relative;box-shadow:0 0 10px rgba(0,136,204,.5)}
-.tc-bar.ot{background:linear-gradient(90deg,#43a047,#66bb6a);height:18px;box-shadow:0 0 10px rgba(67,160,71,.5)}
-.tc-btns{display:flex;gap:8px}
-.tc-btn{flex:1;padding:9px;border-radius:999px;border:2px solid #0088cc;font-size:13px;font-weight:700;cursor:pointer;background:#fff;color:#0088cc;transition:all .15s}
-.tc-btn:hover{transform:translateY(-1px)}
-.tc-btn.primary{background:linear-gradient(135deg,#0088cc,#00aadd);border-color:transparent;color:#fff;box-shadow:0 3px 10px rgba(0,136,204,.3)}
-.tc-btn.finish{background:linear-gradient(135deg,#43a047,#66bb6a);border-color:transparent;color:#fff;box-shadow:0 3px 10px rgba(67,160,71,.3)}
-.tc-pending{font-size:11px;color:#aaa;margin-top:8px;font-weight:600}
-.tc-pending.warn{color:#f57c00}
-.tc-pending.ok{color:#2e7d32}
-
-/* 今日總覽 */
-.today-banner{background:linear-gradient(135deg,#0088cc,#00aadd);border-radius:20px;padding:1.25rem;margin-bottom:1.5rem;color:#fff;box-shadow:0 4px 16px rgba(0,136,204,.3)}
-.today-banner h3{font-size:16px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.today-summary{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px}
-.today-total{font-size:36px;font-weight:800;margin-bottom:4px}
-.today-lbl{font-size:12px;opacity:.8;font-weight:600}
-.today-subjects{display:flex;flex-wrap:wrap;gap:6px}
-.today-tag{background:rgba(255,255,255,.25);border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600}
-.today-empty{font-size:13px;opacity:.7;font-style:italic}
-
+/* 統計 */
 .divider{border:none;border-top:3px dashed #b3d9f0;margin:2rem 0}
 .stats-header{text-align:center;margin-bottom:1.5rem}
 .stats-header h2{font-size:20px;font-weight:800;color:#0088cc;margin-bottom:12px}
@@ -108,32 +178,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .period-btn.active{background:linear-gradient(135deg,#0088cc,#00aadd);border-color:transparent;color:#fff;box-shadow:0 3px 10px rgba(0,136,204,.3)}
 .dual-stats{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;margin-top:1.5rem}
 @media(max-width:600px){.dual-stats{grid-template-columns:1fr}}
-.dual-name{font-size:16px;font-weight:800;text-align:center;padding:10px;border-radius:12px;margin-bottom:10px;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px}
+.dual-name{font-size:16px;font-weight:800;text-align:center;padding:10px;border-radius:12px;margin-bottom:10px;color:#fff}
 .jung-name{background:linear-gradient(135deg,#0088cc,#00aadd)}
 .vivi-name{background:linear-gradient(135deg,#e91e8c,#f06292)}
 .metric-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px}
-.metric{background:#fff;border:2px solid #d0eaf8;border-radius:12px;padding:10px 6px;text-align:center;box-shadow:0 2px 6px rgba(0,136,204,.06)}
+.metric{background:#fff;border:2px solid #d0eaf8;border-radius:12px;padding:10px 6px;text-align:center}
 .metric .val{font-size:18px;font-weight:800;margin-bottom:2px;color:#0088cc}
 .metric .lbl{font-size:10px;color:#aaa;font-weight:600}
 .streak-val{color:#f57c00}
-.total-card{background:#fff;border:2px solid #d0eaf8;border-radius:16px;padding:16px;margin-bottom:10px;text-align:center;box-shadow:0 2px 8px rgba(0,136,204,.08)}
+.total-card{background:#fff;border:2px solid #d0eaf8;border-radius:16px;padding:16px;margin-bottom:10px;text-align:center}
 .total-card .big-num{font-size:44px;font-weight:800;color:#0088cc;margin-bottom:4px}
 .total-card .big-num.vn{color:#e91e8c}
 .total-card .big-lbl{font-size:12px;color:#aaa;font-weight:600}
 .total-card .sub-stats{display:flex;justify-content:center;gap:1.5rem;margin-top:12px;padding-top:12px;border-top:2px dashed #d0eaf8}
 .total-card .sub-val{font-size:16px;font-weight:800;color:#0088cc}
 .total-card .sub-lbl{font-size:10px;color:#aaa}
-.card{background:#fff;border:2px solid #d0eaf8;border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,136,204,.06)}
+.card{background:#fff;border:2px solid #d0eaf8;border-radius:16px;padding:14px;margin-bottom:10px}
 .card-title{font-size:12px;font-weight:800;color:#0088cc;margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em}
 .bar-row{display:flex;align-items:center;gap:6px;margin-bottom:8px}
-.bar-label{font-size:11px;color:#555;width:90px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
-.bar-wrap{flex:1;background:#e3f4ff;border-radius:999px;height:7px}
+.bar-label{font-size:11px;color:#555;width:80px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.bar-wrap{flex:1;min-width:30px;background:#e3f4ff;border-radius:999px;height:7px}
 .bar-fill{height:7px;border-radius:999px;background:linear-gradient(90deg,#0088cc,#00aadd);transition:width .4s}
 .bar-fill.vc{background:linear-gradient(90deg,#e91e8c,#f06292)}
 .bar-fill.over{background:linear-gradient(90deg,#43a047,#66bb6a)}
 .bar-fill.zero{background:#f0f0f0}
-.bar-num{font-size:10px;color:#aaa;width:32px;text-align:right;flex-shrink:0;font-weight:600}
-.bar-pct{font-size:9px;color:#0088cc;width:28px;text-align:right;flex-shrink:0;font-weight:700}
+.bar-num{font-size:10px;color:#aaa;width:30px;text-align:right;flex-shrink:0;font-weight:600}
+.bar-pct{font-size:9px;color:#0088cc;width:52px;text-align:right;flex-shrink:0;font-weight:700;white-space:nowrap}
 .trend-wrap{display:flex;align-items:flex-end;gap:3px;height:60px;margin-bottom:6px;overflow-x:hidden}
 .trend-col{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;height:100%;justify-content:flex-end}
 .trend-bar{width:80%;border-radius:3px 3px 0 0;background:linear-gradient(180deg,#00aadd,#0088cc);min-height:2px}
@@ -147,149 +217,124 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .prog-text{font-size:11px;color:#555;line-height:1.5}
 .loading{text-align:center;padding:1.5rem;color:#0088cc;font-size:13px;font-weight:600}
 .empty{text-align:center;padding:1rem;color:#ddd;font-size:12px}
-@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
-.shake{animation:shake .4s ease;}
-.child-row.highlight .child-card{border-color:#e91e8c;box-shadow:0 0 0 3px rgba(233,30,140,.3)}
 </style>
-
-<script>
-var wakeLock=null;
-async function requestWakeLock(){
-  try{
-    if('wakeLock' in navigator){
-      wakeLock=await navigator.wakeLock.request('screen');
-      wakeLock.addEventListener('release',function(){wakeLock=null;});
-    }
-  }catch(e){}
-}
-document.addEventListener('visibilitychange',function(){
-  if(document.visibilityState==='visible') requestWakeLock();
-});
-requestWakeLock();
-</script>
-
 </head>
 <body>
 <div class="page">
+
   <div id="form-view">
     <div class="header">
       <div class="header-top">
-        <span class="doraemon-icon">🎒</span>
+        <span style="font-size:28px">🎒</span>
         <h1>放學後學習紀錄</h1>
-        <span class="doraemon-icon">🌻</span>
+        <span style="font-size:28px">🌻</span>
       </div>
       <p id="today"></p>
     </div>
 
     <!-- 今日總覽 -->
-    <div class="today-banner" id="today-banner">
-      <h3>📅 今日學習總覽</h3>
+    <div class="today-banner" id="today-banner" onclick="jumpToToday()" style="cursor:pointer" title="點擊查看今日詳細統計">
+      <h3>📅 今日學習總覽 <span style="font-size:11px;opacity:.7;font-weight:500">（點擊看詳細↓）</span></h3>
       <div id="today-content"><div class="today-empty">今天還沒有紀錄，快開始吧！</div></div>
     </div>
 
-    <div class="form-inner">
-      <div class="card-wrap">
-        <div class="section">
-          <div class="sec-label">👤 今天是誰？</div>
-          <div class="child-row">
-            <div class="child-card jung" id="card-jung" onclick="selectChild('Jung')">
-              <div class="avatar">🐨</div>
-              <div class="name">Jung</div>
-              <div class="role">無尾熊</div>
-            </div>
-            <div class="child-card vivi" id="card-vivi" onclick="selectChild('Vivi')">
-              <div class="avatar">🐰</div>
-              <div class="name">Vivi</div>
-              <div class="role">兔子</div>
-            </div>
-          </div>
-        </div>
+    <!-- 目標設立按鈕 -->
+    <div style="text-align:center;margin-bottom:1rem">
+      <a href="goals.html" style="display:inline-block;padding:10px 28px;border-radius:999px;background:linear-gradient(135deg,#ff8f00,#ffa726);color:#fff;font-size:14px;font-weight:800;text-decoration:none;box-shadow:0 3px 10px rgba(255,143,0,.4)">🎯 目標設立</a>
+    </div>
 
-        <div class="section">
-          <div class="sec-label">⏰ 學習時間</div>
-          <div class="chips" id="time-chips">
-            <div class="chip" onclick="selectTime(this,10)">10 分</div>
-            <div class="chip" onclick="selectTime(this,15)">15 分</div>
-            <div class="chip" onclick="selectTime(this,20)">20 分</div>
-            <div class="chip" onclick="selectTime(this,25)">25 分</div>
-            <div class="chip" onclick="selectTime(this,30)">30 分</div>
-            <div class="chip" onclick="selectTime(this,45)">45 分</div>
-            <div class="chip" onclick="selectTime(this,60)">60 分</div>
-          </div>
-        </div>
+    <!-- 孩子選擇 -->
+    <div class="child-row">
+      <div class="child-card jung" id="card-jung" onclick="selectChild('Jung')">
+        <div class="avatar">🐨</div><div class="name">Jung</div>
+      </div>
+      <div class="child-card vivi" id="card-vivi" onclick="selectChild('Vivi')">
+        <div class="avatar">🐰</div><div class="name">Vivi</div>
+      </div>
+    </div>
 
-        <div class="section">
-          <div class="sec-label">📚 科目（單選）</div>
-          <div class="group-label">國語</div>
-          <div class="chips">
-            <div class="chip g1" onclick="selectSubject(this,'國語－課內')">國語－課內</div>
-            <div class="chip g1" onclick="selectSubject(this,'國語－閱讀測驗')">國語－閱讀測驗</div>
-            <div class="chip g1" onclick="selectSubject(this,'國語－古文閱讀測驗')">國語－古文閱讀測驗</div>
-            <div class="chip g1" onclick="selectSubject(this,'國語－作文')">國語－作文</div>
-          </div>
-          <div class="group-label">數學</div>
-          <div class="chips">
-            <div class="chip g2" onclick="selectSubject(this,'數學－課內')">數學－課內</div>
-            <div class="chip g2" onclick="selectSubject(this,'數學－超前')">數學－超前</div>
-          </div>
-          <div class="group-label">自然科學</div>
-          <div class="chips">
-            <div class="chip g3" onclick="selectSubject(this,'自然')">自然</div>
-            <div class="chip g3" onclick="selectSubject(this,'生物')">生物</div>
-            <div class="chip g3" onclick="selectSubject(this,'化學')">化學</div>
-            <div class="chip g3" onclick="selectSubject(this,'物理')">物理</div>
-          </div>
-          <div class="group-label">英文</div>
-          <div class="chips">
-            <div class="chip g4" onclick="selectSubject(this,'英文單字')">英文單字</div>
-            <div class="chip g4" onclick="selectSubject(this,'英文閱讀測驗')">英文閱讀測驗</div>
-            <div class="chip g4" onclick="selectSubject(this,'英文－課內')">英文－課內</div>
-            <div class="chip g4" onclick="selectSubject(this,'英文－超前')">英文－超前</div>
-            <div class="chip g4" onclick="selectSubject(this,'英文作文')">英文作文</div>
-          </div>
-          <div class="group-label">其他</div>
-          <div class="chips">
-            <div class="chip g5" onclick="selectSubject(this,'學校作業')">學校作業</div>
-            <div class="chip g5" onclick="selectSubject(this,'社會')">社會</div>
-            <div class="chip g5" onclick="selectSubject(this,'資訊')">資訊</div>
-            <div class="chip g5" onclick="selectSubject(this,'音樂')">音樂</div>
-            <div class="chip g5" onclick="selectSubject(this,'課外閱讀')">課外閱讀</div>
-          </div>
+    <!-- 目標方塊區 -->
+    <div class="goals-area" id="goals-area" style="display:none"></div>
+
+    <!-- 計時器（緊靠在目標下面） -->
+    <div id="no-child-warn" class="no-child-warn">⚠️ 請先選擇今天是誰，才能開始計時！</div>
+    <div class="timer-box" id="timer-box">
+      <div class="timer-top">
+        <div class="timer-subject-label" id="timer-subject-label">—</div>
+        <div class="timer-time-row" id="timer-time-row">
+          <div class="timer-time-chip" onclick="setTimerTime(this,10)">10分</div>
+          <div class="timer-time-chip" onclick="setTimerTime(this,15)">15分</div>
+          <div class="timer-time-chip sel" onclick="setTimerTime(this,25)">25分</div>
+          <div class="timer-time-chip" onclick="setTimerTime(this,30)">30分</div>
+          <div class="timer-time-chip" onclick="setTimerTime(this,45)">45分</div>
+          <div class="timer-time-chip" onclick="setTimerTime(this,60)">60分</div>
         </div>
       </div>
+      <div class="timer-bar-wrap"><div class="timer-bar" id="timer-bar" style="width:0%"></div></div>
+      <div class="timer-time-display" id="timer-display">25:00</div>
+      <div class="timer-btns" id="timer-btns"></div>
+      <div class="timer-pending" id="timer-pending"></div>
+    </div>
 
-      <!-- 計時器 -->
-      <div class="timer-section" id="timer-section">
-        <div id="no-child-warn" style="display:none;background:#fff3e0;border:2px solid #ffb300;border-radius:12px;padding:10px 14px;margin-bottom:10px;font-size:13px;font-weight:700;color:#e65100;text-align:center">⚠️ 請先選擇今天是誰，才能開始計時！</div>
-        <div class="sec-label">⏱ 計時</div>
-        <div class="timer-cards" id="timer-cards"></div>
+    <!-- 其他科目（沒有目標的） -->
+    <div class="other-section" id="other-section" style="display:none">
+      <div class="sec-label">📚 學習主題（單選）</div>
+      <div class="group-label">國語</div>
+      <div class="chips">
+        <div class="chip g1" onclick="selectOtherSubject(this,'國語－課內')">國語－課內</div>
+        <div class="chip g1" onclick="selectOtherSubject(this,'國語－閱讀測驗')">國語－閱讀測驗</div>
+        <div class="chip g1" onclick="selectOtherSubject(this,'國語－古文閱讀測驗')">國語－古文閱讀測驗</div>
+        <div class="chip g1" onclick="selectOtherSubject(this,'國語－作文')">國語－作文</div>
       </div>
+      <div class="group-label">數學</div>
+      <div class="chips">
+        <div class="chip g2" onclick="selectOtherSubject(this,'數學－課內')">數學－課內</div>
+        <div class="chip g2" onclick="selectOtherSubject(this,'數學－超前')">數學－超前</div>
+      </div>
+      <div class="group-label">自然科學</div>
+      <div class="chips">
+        <div class="chip g3" onclick="selectOtherSubject(this,'自然')">自然</div>
+        <div class="chip g3" onclick="selectOtherSubject(this,'生物')">生物</div>
+        <div class="chip g3" onclick="selectOtherSubject(this,'化學')">化學</div>
+        <div class="chip g3" onclick="selectOtherSubject(this,'物理')">物理</div>
+      </div>
+      <div class="group-label">英文</div>
+      <div class="chips">
+        <div class="chip g4" onclick="selectOtherSubject(this,'英文單字')">英文單字</div>
+        <div class="chip g4" onclick="selectOtherSubject(this,'英文閱讀測驗')">英文閱讀測驗</div>
+        <div class="chip g4" onclick="selectOtherSubject(this,'英文－課內')">英文－課內</div>
+        <div class="chip g4" onclick="selectOtherSubject(this,'英文－超前')">英文－超前</div>
+        <div class="chip g4" onclick="selectOtherSubject(this,'英文作文')">英文作文</div>
+      </div>
+      <div class="group-label">其他</div>
+      <div class="chips">
+        <div class="chip g5" onclick="selectOtherSubject(this,'學校作業')">學校作業</div>
+        <div class="chip g5" onclick="selectOtherSubject(this,'社會')">社會</div>
+        <div class="chip g5" onclick="selectOtherSubject(this,'資訊')">資訊</div>
+        <div class="chip g5" onclick="selectOtherSubject(this,'音樂')">音樂</div>
+        <div class="chip g5" onclick="selectOtherSubject(this,'課外閱讀')">課外閱讀</div>
+      </div>
+    </div>
 
-      <div class="card-wrap">
-        <div class="section">
-          <div class="sec-label">✏️ 學習方式（可多選）</div>
-          <div class="chips">
-            <div class="chip" onclick="toggleWay(this)">上課</div>
-            <div class="chip" onclick="toggleWay(this)">作業</div>
-            <div class="chip" onclick="toggleWay(this)">閱讀－複習</div>
-            <div class="chip" onclick="toggleWay(this)">測驗</div>
-            <div class="chip" onclick="toggleWay(this)">錯題複習</div>
-            <div class="chip" onclick="toggleWay(this)">練習題</div>
-          </div>
-        </div>
-        <div class="progress-wrap">
-          <div class="sec-label">📝 進度（自己寫）</div>
-          <input id="progress" type="text" placeholder="例：第3課、單元1-1">
-        </div>
-        <div class="err" id="err-msg">請確認已選擇名字和科目。</div>
+    <!-- 學習方式 -->
+    <div class="ways-section" id="ways-section" style="display:none">
+      <div class="sec-label">✏️ 學習方式（可多選）</div>
+      <div class="chips">
+        <div class="chip" onclick="toggleWay(this)">上課</div>
+        <div class="chip" onclick="toggleWay(this)">作業</div>
+        <div class="chip" onclick="toggleWay(this)">閱讀－複習</div>
+        <div class="chip" onclick="toggleWay(this)">測驗</div>
+        <div class="chip" onclick="toggleWay(this)">錯題複習</div>
+        <div class="chip" onclick="toggleWay(this)">練習題</div>
       </div>
+      <input class="progress-input" id="progress-input" type="text" placeholder="補充進度（選填）">
     </div>
   </div>
 
   <div class="success" id="success-view">
     <div class="big">🎉</div>
     <h2 id="success-name"></h2>
-    <p>今天的學習已記錄！<br>繼續保持，明天見！</p>
+    <p>學習已記錄！繼續保持，明天見！</p>
     <button onclick="resetForm()">再記錄一筆</button>
   </div>
 
@@ -298,8 +343,8 @@ requestWakeLock();
   <div class="stats-header">
     <h2>📊 學習統計</h2>
     <div class="period-row">
-      <div class="period-btn" onclick="switchPeriod('today',this)">今日</div>
-      <div class="period-btn active" onclick="switchPeriod('week',this)">本週</div>
+      <div class="period-btn active" onclick="switchPeriod('today',this)">今日</div>
+      <div class="period-btn" onclick="switchPeriod('week',this)">本週</div>
       <div class="period-btn" onclick="switchPeriod('month',this)">本月</div>
       <div class="period-btn" onclick="switchPeriod('quarter',this)">本季</div>
       <div class="period-btn" onclick="switchPeriod('half',this)">半年</div>
@@ -307,16 +352,9 @@ requestWakeLock();
       <div class="period-btn" onclick="switchPeriod('all',this)">全部</div>
     </div>
   </div>
-
   <div class="dual-stats">
-    <div class="dual-col">
-      <div class="dual-name jung-name">🐨 Jung</div>
-      <div id="stats-jung"><div class="loading">載入中…</div></div>
-    </div>
-    <div class="dual-col">
-      <div class="dual-name vivi-name">🐰 Vivi</div>
-      <div id="stats-vivi"><div class="loading">載入中…</div></div>
-    </div>
+    <div><div class="dual-name jung-name">🐨 Jung</div><div id="stats-jung"><div class="loading">載入中…</div></div></div>
+    <div><div class="dual-name vivi-name">🐰 Vivi</div><div id="stats-vivi"><div class="loading">載入中…</div></div></div>
   </div>
 </div>
 
@@ -327,149 +365,540 @@ var DAYS=['日','一','二','三','四','五','六'];
 var MONTHS=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 var BASELINE={'英文單字':{week:50,month:200,quarter:600,half:1200,year:2400},def:{week:25,month:100,quarter:300,half:600,year:1200}};
 
-var selectedChild='',selectedTime=25,selectedSubject='',selectedWays=[];
-var statsPeriod='week',cachedData={};
-var timers={},activeSubject=null;
+var SUBJECT_GROUP={
+  '國語－課內':'g1','國語－閱讀測驗':'g1','國語－古文閱讀測驗':'g1','國語－作文':'g1',
+  '數學－課內':'g2','數學－超前':'g2',
+  '自然':'g3','生物':'g3','化學':'g3','物理':'g3',
+  '英文單字':'g4','英文閱讀測驗':'g4','英文－課內':'g4','英文－超前':'g4','英文作文':'g4',
+  '學校作業':'g5','社會':'g5','資訊':'g5','音樂':'g5','課外閱讀':'g5'
+};
+var selectedChild='',selectedTime=25,selectedWays=[];
+var activeSubject='',activeUnit=''; // 目前計時的科目+單元
+var activeOtherSubject=''; // 其他科目
+var timerRunning=false,timerPaused=false,timerTotal=0,timerRemaining=0,timerOvertime=false,timerOvertimeSec=0,timerInterval=null,timerStarted=false;
+var unitTimers={}; // 記住每個單元的累積時間 key: "subject::unit"
+var statsPeriod='today',cachedData={},goalsData={};
 
 var now=new Date();
 document.getElementById('today').textContent=now.getFullYear()+'年'+(now.getMonth()+1)+'月'+now.getDate()+'日（週'+DAYS[now.getDay()]+'）';
 
+// 背景補時：iOS Safari 用 pagehide/pageshow + localStorage 時間戳記
+function saveLeaveTime(){
+  if(timerRunning){
+    try{
+      localStorage.setItem('timerLeaveStamp', String(Date.now()));
+    }catch(e){}
+  }
+}
+function applyLeaveTime(){
+  try{
+    var stamp=localStorage.getItem('timerLeaveStamp');
+    if(!stamp) return;
+    localStorage.removeItem('timerLeaveStamp');
+    if(!timerStarted) return;
+    var away=Math.floor((Date.now()-parseInt(stamp))/1000);
+    if(away<=0||away>86400) return;
+    if(!timerOvertime){
+      timerRemaining=timerRemaining-away;
+      if(timerRemaining<=0){
+        timerOvertimeSec=Math.abs(timerRemaining);
+        timerRemaining=0;timerOvertime=true;
+        if(timerTotal>=5) playDone();
+      }
+    } else {
+      timerOvertimeSec+=away;
+    }
+    updateTimerDisplay();renderTimerBtns();
+    saveTimerStateLocal();
+  }catch(e){}
+}
+
+// pagehide: 頁面隱藏時存時間戳記
+window.addEventListener('pagehide',function(){saveLeaveTime();});
+// pageshow: 頁面顯示時補時
+window.addEventListener('pageshow',function(){applyLeaveTime();});
+// visibilitychange: 額外保險
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='hidden'){saveLeaveTime();}
+  else{applyLeaveTime();}
+});
+// Wake Lock
+(async function(){
+  try{
+    if('wakeLock' in navigator){
+      var wl=await navigator.wakeLock.request('screen');
+      document.addEventListener('visibilitychange',async function(){
+        if(document.visibilityState==='visible'){
+          try{wl=await navigator.wakeLock.request('screen');}catch(e){}
+        }
+      });
+    }
+  }catch(e){}
+})();
+
 function selectChild(n){
+  var isSame=selectedChild===n;
   selectedChild=n;
   document.getElementById('card-jung').classList.toggle('selected',n==='Jung');
   document.getElementById('card-vivi').classList.toggle('selected',n==='Vivi');
+  if(!isSame){
+    // 切換孩子才重設計時
+    stopTimer(true);
+    activeSubject='';activeUnit='';activeOtherSubject='';
+    unitTimers={};
+    document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('sel-subject','sel-way');});
+  }
+  loadGoalsForChild();
   renderTodayBanner();
 }
 
-function selectTime(el,v){
-  selectedTime=v;
-  document.querySelectorAll('#time-chips .chip').forEach(function(c){c.classList.remove('sel-time');});
-  el.classList.add('sel-time');
-  if(selectedSubject&&timers[selectedSubject]&&!timers[selectedSubject].started){
-    timers[selectedSubject].total=v*60;
-    timers[selectedSubject].remaining=v*60;
-    renderTimerCard(selectedSubject);
-    saveTimerState();
+async function loadGoalsForChild(){
+  if(!selectedChild) return;
+  // 每次選孩子都重新載入，不用快取
+  document.getElementById('goals-area').innerHTML='<div style="padding:1rem;text-align:center;color:#0088cc;font-size:13px;font-weight:600">載入目標中…</div>';
+  document.getElementById('goals-area').style.display='block';
+  try{
+    var res=await fetch(SCRIPT_URL+'?action=readGoals&child='+encodeURIComponent(selectedChild)+'&t='+Date.now());
+    var json=await res.json();
+    goalsData[selectedChild]=json.goals||[];
+    renderGoalsArea();
+    renderOtherSubjects();
+  }catch(e){
+    goalsData[selectedChild]=[];
+    renderGoalsArea();
+    renderOtherSubjects();
   }
 }
 
-function selectSubject(el,name){
-  // 單選：取消前一個
-  if(selectedSubject&&selectedSubject!==name){
-    document.querySelectorAll('.chip').forEach(function(c){
-      if(c.textContent.trim()===selectedSubject) c.classList.remove('sel-subject');
-    });
-    if(timers[selectedSubject]&&timers[selectedSubject].running){
-      clearInterval(timers[selectedSubject].interval);
-      timers[selectedSubject].interval=null;
-      timers[selectedSubject].running=false;
-      if(activeSubject===selectedSubject) activeSubject=null;
-    }
-  }
-  if(selectedSubject===name){
-    // 取消選取
-    el.classList.remove('sel-subject');
-    selectedSubject='';
-    document.getElementById('timer-section').style.display='none';
-  } else {
-    el.classList.add('sel-subject');
-    selectedSubject=name;
-    if(!timers[name]){
-      timers[name]={total:selectedTime*60,remaining:selectedTime*60,running:false,overtime:false,overtimeSec:0,done:false,started:false,interval:null};
-    }
-    document.getElementById('timer-section').style.display='block';
-    renderTimerCards();
-  }
-  saveTimerState();
+var dragSrcSubject='',dragSrcUnit='';
+function dragStart(e){
+  var el=e.currentTarget;
+  dragSrcSubject=el.dataset.subject;
+  dragSrcUnit=el.dataset.unit;
+  el.classList.add('dragging');
+  e.dataTransfer.effectAllowed='move';
+}
+function dragEnd(e){
+  e.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.unit-block').forEach(function(b){b.classList.remove('drag-over');});
+}
+function dragOver(e){
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+  return false;
+}
+function drop(e,targetSubject,targetUnit,page){
+  e.stopPropagation();
+  e.currentTarget.classList.remove('drag-over');
+  if(dragSrcSubject===targetSubject&&dragSrcUnit===targetUnit) return;
+  var goals=goalsData[selectedChild]||[];
+  var srcIdx=goals.findIndex(function(g){return g.subject===dragSrcSubject&&g.unit===dragSrcUnit;});
+  var tgtIdx=goals.findIndex(function(g){return g.subject===targetSubject&&g.unit===targetUnit;});
+  if(srcIdx<0||tgtIdx<0) return;
+  var moved=goals.splice(srcIdx,1)[0];
+  goals.splice(tgtIdx,0,moved);
+  goalsData[selectedChild]=goals;
+  renderGoalsArea();
+  saveGoalOrder();
+}
+async function saveGoalOrder(){
+  // 把新順序存到 Sheets（刪掉舊的重新寫）
+  var goals=goalsData[selectedChild]||[];
+  try{
+    var url=SCRIPT_URL+'?action=saveOrder&child='+encodeURIComponent(selectedChild)
+      +'&order='+encodeURIComponent(JSON.stringify(goals.map(function(g){return{subject:g.subject,unit:g.unit};})));
+    await fetch(url,{method:'GET',mode:'no-cors'});
+  }catch(e){}
 }
 
-function toggleWay(el){
-  var v=el.textContent.trim();
-  var idx=selectedWays.indexOf(v);
-  if(idx>=0){selectedWays.splice(idx,1);el.classList.remove('sel-way');}
-  else{selectedWays.push(v);el.classList.add('sel-way');}
-}
-
-function fmtTime(sec){
-  var s=Math.abs(sec);
-  var m=Math.floor(s/60);
-  var ss=s%60;
-  return (m<10?'0':'')+m+':'+(ss<10?'0':'')+ss;
-}
-
-function getWeekDone(subject){
-  if(!selectedChild||!cachedData[selectedChild]) return 0;
-  var rows=cachedData[selectedChild];
-  var t=new Date();t.setHours(0,0,0,0);
-  var ws=new Date(t);ws.setDate(t.getDate()-t.getDay());
-  var we=new Date(t.getTime()+86400000);
-  return rows.filter(function(r){
-    return r.timestamp>=ws&&r.timestamp<we&&r.subjects&&r.subjects.split('、').indexOf(subject)>=0;
+function getUnitMinutes(subject,unit){
+  // 從紀錄裡算這個科目+單元的累計時間（用進度欄位比對）
+  if(!cachedData[selectedChild]) return 0;
+  return cachedData[selectedChild].filter(function(r){
+    return r.subjects&&r.subjects.split('、').indexOf(subject)>=0
+      &&r.progress&&r.progress.trim()===unit;
   }).reduce(function(s,r){return s+r.time;},0);
 }
 
-function toggleTimer(subject){
-  var t=timers[subject];
-  if(!t||t.done) return;
-  if(!selectedChild&&!t.running){
-    var row=document.querySelector('.child-row');
-    row.classList.add('shake','highlight');
-    setTimeout(function(){row.classList.remove('shake');},400);
-    setTimeout(function(){row.classList.remove('highlight');},2000);
-    row.scrollIntoView({behavior:'smooth',block:'center'});
+function getSubjectMinutes(subject){
+  // 科目總累計（不限單元）
+  if(!cachedData[selectedChild]) return 0;
+  return cachedData[selectedChild].filter(function(r){
+    return r.subjects&&r.subjects.split('、').indexOf(subject)>=0;
+  }).reduce(function(s,r){return s+r.time;},0);
+}
+
+function renderGoalsArea(){
+  var area=document.getElementById('goals-area');
+  var allGoals=goalsData[selectedChild]||[];
+  var goals=allGoals.filter(function(g){return g.subject&&g.unit&&String(g.unit).trim().length>0&&String(g.unit).length<20;});
+  if(!goals.length){
+    area.style.display=allGoals.length?'block':'none';
+    if(allGoals.length) area.innerHTML='<div style="padding:1rem;text-align:center;color:#88bbdd;font-size:13px">目標資料載入中，請稍後重新整理</div>';
     return;
   }
-  if(t.running){
-    clearInterval(t.interval);t.interval=null;t.running=false;
-    if(activeSubject===subject) activeSubject=null;
-  } else {
-    if(activeSubject&&activeSubject!==subject&&timers[activeSubject]){
-      var prev=timers[activeSubject];
-      clearInterval(prev.interval);prev.interval=null;prev.running=false;
-      renderTimerCard(activeSubject);
+  area.style.display='block';
+  var isVivi=selectedChild==='Vivi';
+  var doneClass=isVivi?'done-vivi':'done';
+  var barClass=isVivi?'vivi-bar':'';
+  var bySubject={},subOrder=[];
+  goals.forEach(function(g){
+    if(!bySubject[g.subject]){bySubject[g.subject]=[];subOrder.push(g.subject);}
+    bySubject[g.subject].push(g);
+  });
+
+  var html='';
+  subOrder.forEach(function(subject){
+    var units=bySubject[subject];
+    var doneCount=units.filter(function(g){return g.done;}).length;
+    var pct=units.length?Math.round(doneCount/units.length*100):0;
+    html+='<div class="goals-subject-block">';
+    html+='<div class="goals-subject-title">'+subject+'<span style="font-size:11px;color:#88bbdd;font-weight:600">'+doneCount+'/'+units.length+'</span></div>';
+    html+='<div class="goals-progress-wrap"><div class="goals-progress-bar '+barClass+'" style="width:'+pct+'%"></div></div>';
+    html+='<div class="unit-grid">';
+    units.forEach(function(g){
+      var sg='sc-'+(SUBJECT_GROUP[subject]||'');
+      var isActive=activeSubject===subject&&activeUnit===g.unit;
+      var bc=isActive?'active-timer':(g.done?doneClass:'');
+      var se=subject.replace(/'/g,"\'"),ue=g.unit.replace(/'/g,"\'");
+      var recordMins=g.done?50:getUnitMinutes(g.subject,g.unit);
+      var timerKey=g.subject+'::'+g.unit;
+      var timerData=unitTimers[timerKey];
+      var timerElapsed=timerData?(timerData.elapsed||timerData||0):0;
+      var timerMins=Math.floor(timerElapsed/60);
+      var uMins=Math.max(recordMins,timerMins);
+      var waterH=Math.min(64,Math.round(uMins/50*64));
+      html+='<div class="unit-block '+sg+' '+bc+'" '
+        +'draggable="true" '
+        +'data-subject="'+se+'" data-unit="'+ue+'" '
+        +'onclick="clickUnit(\''+se+'\',\''+ue+'\','+g.done+')" '
+        +'ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="drop(event,\''+se+'\',\''+ue+'\',\'index\')" ondragend="dragEnd(event)">'
+        +'<div class="unit-water" style="height:'+waterH+'px"></div>'
+        +'<div class="unit-check">'+(g.done?'★':'')+'</div>'
+        +'<div class="unit-block-lbl">單元</div>'
+        +'<div class="unit-label">'+g.unit+'</div>'
+        +'<div class="unit-date">'+(uMins>0&&!g.done?uMins+'分':'')+(g.doneAt||'')+'</div>'
+        +'</div>';
+    });
+    html+='</div></div>';
+  });
+  area.innerHTML=html;
+}
+
+function getGoalSubjects(){
+  var goals=goalsData[selectedChild]||[];
+  var subjects={};
+  goals.forEach(function(g){subjects[g.subject]=true;});
+  return subjects;
+}
+
+function renderOtherSubjects(){
+  var otherSec=document.getElementById('other-section');
+  otherSec.style.display='block';
+  // 所有科目都顯示，不隱藏任何
+  var chips=otherSec.querySelectorAll('.chip[onclick]');
+  chips.forEach(function(c){c.style.display='';});
+  document.getElementById('ways-section').style.display='block';
+}
+
+function clickUnit(subject,unit,isDone){
+  if(!selectedChild){
+    var w=document.getElementById('no-child-warn');
+    w.style.display='block';setTimeout(function(){w.style.display='none';},2500);
+    return;
+  }
+  // 如果已完成，點擊取消完成
+  if(isDone){
+    if(!confirm('取消「'+subject+' '+unit+'」的完成？')) return;
+    markGoal(subject,unit,false);
+    return;
+  }
+  // 再點一次已選取的：取消選取（暫停並保留時間）
+  if(activeSubject===subject&&activeUnit===unit){
+    stopTimer(false);
+    timerStarted=false;timerRunning=false;timerOvertime=false;timerOvertimeSec=0;
+    activeSubject='';activeUnit='';
+    document.getElementById('timer-box').style.display='none';
+    renderGoalsArea();
+    return;
+  }
+  // 切換科目：暫停目前計時，保留各自狀態
+  stopTimer(false); // 儲存目前科目累積時間
+  // 重設計時器狀態，準備載入新科目
+  timerStarted=false;
+  timerRunning=false;
+  timerOvertime=false;
+  timerOvertimeSec=0;
+  activeSubject=subject;activeUnit=unit;
+  activeOtherSubject='';
+  document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('sel-subject');});
+  // showTimer 會從 unitTimers 讀取新科目的累積時間
+  showTimer(subject+' › '+unit);
+  renderGoalsArea();
+}
+
+function selectOtherSubject(el,name){
+  if(!selectedChild){
+    var w=document.getElementById('no-child-warn');
+    w.style.display='block';setTimeout(function(){w.style.display='none';},2500);
+    return;
+  }
+  if(activeOtherSubject===name){
+    // 取消
+    activeOtherSubject='';el.classList.remove('sel-subject');
+    stopTimer();return;
+  }
+  stopTimer(false); // 儲存目前科目累積時間
+  timerStarted=false;timerRunning=false;timerOvertime=false;timerOvertimeSec=0;
+  document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('sel-subject');});
+  activeOtherSubject=name;activeSubject='';activeUnit='';
+  el.classList.add('sel-subject');
+  showTimer(name);
+  renderGoalsArea();
+}
+
+function showTimer(label){
+  var box=document.getElementById('timer-box');
+  box.style.display='block';
+  document.getElementById('timer-subject-label').textContent=label;
+  var key=(activeSubject||activeOtherSubject)+'::'+activeUnit;
+  var savedData=unitTimers[key]||null;
+  var savedElapsed=savedData?(savedData.elapsed||savedData||0):0;
+  var savedTotal=savedData&&savedData.total?savedData.total:0;
+  // 只有在沒有進行中的計時時才重設
+  if(!timerStarted){
+    // 恢復該科目上次設定的時間，沒有就用 selectedTime
+    timerTotal=savedTotal>0?savedTotal:selectedTime*60;
+    // 同步更新 selectedTime 顯示
+    selectedTime=Math.round(timerTotal/60);
+    document.querySelectorAll('.timer-time-chip').forEach(function(c){
+      var chipTime=parseInt(c.textContent.replace('分',''));
+      c.classList.toggle('sel',chipTime===selectedTime);
+    });
+    if(savedElapsed>0){
+      var alreadyDone=Math.min(savedElapsed,timerTotal);
+      timerRemaining=timerTotal-alreadyDone;
+      timerOvertimeSec=savedElapsed>timerTotal?savedElapsed-timerTotal:0;
+      timerOvertime=timerOvertimeSec>0;
+      timerStarted=true;
+    } else {
+      timerRemaining=timerTotal;timerOvertime=false;timerOvertimeSec=0;
     }
-    t.running=true;t.started=true;activeSubject=subject;
-    t.interval=setInterval(function(){tickTimer(subject);},1000);
+    timerRunning=false;timerPaused=false;
   }
-  renderTimerCard(subject);
-  saveTimerState();
+  // 不管是否重設都更新顯示
+  box.className='timer-box'+(timerRunning?' running':(timerOvertime?' overtime':''));
+  updateTimerDisplay();
+  renderTimerBtns();
+  updatePending();
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
-function tickTimer(subject){
-  var t=timers[subject];
-  if(!t) return;
-  if(!t.overtime){
-    t.remaining--;
-    if(t.remaining<=0){t.remaining=0;t.overtime=true;playDone();}
+function setTimerTime(el,v){
+  if(timerStarted){
+    var msg=timerOvertime?'請先按「完成了！」才能更改時間。':'請先按「結束」才能更改時間。';
+    alert(msg);
+    return;
+  }
+  selectedTime=v;
+  document.querySelectorAll('.timer-time-chip').forEach(function(c){c.classList.remove('sel');});
+  el.classList.add('sel');
+  timerTotal=v*60;timerRemaining=v*60;
+  updateTimerDisplay();
+}
+
+function fmtTime(sec){
+  var s=Math.abs(sec),m=Math.floor(s/60),ss=s%60;
+  return (m<10?'0':'')+m+':'+(ss<10?'0':'')+ss;
+}
+
+function updateTimerDisplay(){
+  var disp=document.getElementById('timer-display');
+  var bar=document.getElementById('timer-bar');
+  if(timerOvertime){
+    disp.textContent='+'+fmtTime(timerOvertimeSec);
+    disp.className='timer-time-display ot';
+    bar.className='timer-bar ot';
+    bar.style.width='100%';
+    document.getElementById('timer-box').className='timer-box overtime';
   } else {
-    t.overtimeSec++;
+    disp.textContent=fmtTime(timerRemaining);
+    disp.className='timer-time-display';
+    bar.className='timer-bar';
+    var pct=timerTotal>0?Math.round((timerTotal-timerRemaining)/timerTotal*100):0;
+    bar.style.width=pct+'%';
+    if(timerRunning) document.getElementById('timer-box').className='timer-box running';
   }
-  renderTimerCard(subject);
-  if(t.overtimeSec%5===0) saveTimerState();
 }
 
-function finishTimer(subject){
-  var t=timers[subject];
-  if(!t) return;
-  clearInterval(t.interval);t.interval=null;t.running=false;t.done=true;
-  if(activeSubject===subject) activeSubject=null;
-  var elapsed=t.total-t.remaining+t.overtimeSec;
+function renderTimerBtns(){
+  var btns=document.getElementById('timer-btns');
+  if(timerOvertime){
+    btns.innerHTML='<button class="timer-btn finish" onclick="finishTimer()">🎉 完成了！</button>';
+  } else {
+    var startLabel=timerRunning?'⏸ 暫停':'▶ 開始';
+    btns.innerHTML='<button class="timer-btn primary" onclick="toggleTimer()">'+startLabel+'</button>'
+      +'<button class="timer-btn" onclick="finishTimer()">結束</button>';
+  }
+}
+
+function toggleTimer(){
+  if(timerRunning){
+    clearInterval(timerInterval);timerInterval=null;timerRunning=false;
+  } else {
+    timerStarted=true;timerRunning=true;
+    timerInterval=setInterval(function(){
+      if(!timerOvertime){
+        timerRemaining--;
+        if(timerRemaining<=0){
+          timerRemaining=0;timerOvertime=true;
+          if(timerTotal>=5) playDone();
+        }
+      } else {timerOvertimeSec++;}
+      updateTimerDisplay();renderTimerBtns();
+      if((timerTotal-timerRemaining+timerOvertimeSec)%5===0) saveTimerStateLocal();
+    },1000);
+  }
+  updateTimerDisplay();renderTimerBtns();
+}
+
+function saveTimerStateLocal(){
+  try{
+    localStorage.setItem('unitTimers',JSON.stringify(unitTimers));
+    localStorage.setItem('timerSession',JSON.stringify({
+      activeSubject:activeSubject,
+      activeUnit:activeUnit,
+      activeOtherSubject:activeOtherSubject,
+      selectedChild:selectedChild,
+      selectedTime:selectedTime,
+      timerRunning:false,
+      timerRemaining:timerRemaining,
+      timerTotal:timerTotal,
+      timerOvertime:timerOvertime,
+      timerOvertimeSec:timerOvertimeSec,
+      timerStarted:timerStarted
+    }));
+  }catch(e){}
+}
+function loadTimerStateLocal(){
+  try{
+    var s=localStorage.getItem('unitTimers');
+    if(s) unitTimers=JSON.parse(s);
+    var sess=localStorage.getItem('timerSession');
+    if(sess){
+      var d=JSON.parse(sess);
+      if(d.selectedChild){
+        selectedChild=d.selectedChild;
+        selectedTime=d.selectedTime||25;
+        // 恢復孩子選取UI
+        document.getElementById('card-jung').classList.toggle('selected',selectedChild==='Jung');
+        document.getElementById('card-vivi').classList.toggle('selected',selectedChild==='Vivi');
+        // 恢復時間選取UI
+        document.querySelectorAll('.timer-time-chip').forEach(function(c){
+          var chipTime=parseInt(c.textContent.replace('分',''));
+          c.classList.toggle('sel',chipTime===selectedTime);
+        });
+      }
+      if(d.activeSubject&&d.activeUnit){
+        activeSubject=d.activeSubject;
+        activeUnit=d.activeUnit;
+        timerRemaining=d.timerRemaining||d.timerTotal||selectedTime*60;
+        timerTotal=d.timerTotal||selectedTime*60;
+        timerOvertime=d.timerOvertime||false;
+        timerOvertimeSec=d.timerOvertimeSec||0;
+        timerStarted=d.timerStarted||false;
+        // 顯示計時器
+        var box=document.getElementById('timer-box');
+        box.style.display='block';
+        document.getElementById('timer-subject-label').textContent=activeSubject+' › '+activeUnit;
+        updateTimerDisplay();
+        renderTimerBtns();
+      } else if(d.activeOtherSubject){
+        activeOtherSubject=d.activeOtherSubject;
+        timerRemaining=d.timerRemaining||d.timerTotal||selectedTime*60;
+        timerTotal=d.timerTotal||selectedTime*60;
+        timerOvertime=d.timerOvertime||false;
+        timerOvertimeSec=d.timerOvertimeSec||0;
+        timerStarted=d.timerStarted||false;
+        var box=document.getElementById('timer-box');
+        box.style.display='block';
+        document.getElementById('timer-subject-label').textContent=activeOtherSubject;
+        updateTimerDisplay();
+        renderTimerBtns();
+      }
+    }
+  }catch(e){}
+}
+
+function stopTimer(clearUnit){
+  clearInterval(timerInterval);timerInterval=null;timerRunning=false;
+  // 儲存目前累積時間（秒）
+  if((activeSubject||activeOtherSubject)&&timerStarted){
+    var key=(activeSubject||activeOtherSubject)+'::'+activeUnit;
+    var elapsed=timerTotal-timerRemaining+timerOvertimeSec;
+    if(!clearUnit) unitTimers[key]={elapsed:elapsed,total:timerTotal};
+    else delete unitTimers[key];
+  }
+  if(clearUnit){
+    timerTotal=selectedTime*60;timerRemaining=timerTotal;timerOvertime=false;timerOvertimeSec=0;timerStarted=false;
+  }
+  document.getElementById('timer-box').style.display='none';
+  saveTimerStateLocal();
+}
+
+function updatePending(){
+  var p=document.getElementById('timer-pending');
+  var subject=activeSubject||activeOtherSubject;
+  if(!subject){p.textContent='';return;}
+  var bl=(BASELINE[subject]||BASELINE.def).week;
+  var rows=cachedData[selectedChild]||[];
+  var t=new Date();t.setHours(0,0,0,0);
+  var ws=new Date(t);ws.setDate(t.getDate()-t.getDay());
+  var done=rows.filter(function(r){return r.timestamp>=ws&&r.subjects&&r.subjects.split('、').indexOf(subject)>=0;}).reduce(function(s,r){return s+r.time;},0);
+  var rem=Math.max(0,bl-done);
+  if(rem>0){p.textContent='本週還差 '+rem+' 分';p.className='timer-pending';}
+  else{p.textContent='本週已達標 ✓';p.className='timer-pending ok';}
+}
+
+function finishTimer(){
+  clearInterval(timerInterval);timerInterval=null;timerRunning=false;
+  var elapsed=timerTotal-timerRemaining+timerOvertimeSec;
   var mins=Math.max(1,Math.round(elapsed/60));
-  renderTimerCard(subject);
-  sendRecord(subject,mins);
+  var subject=activeSubject||activeOtherSubject;
+  var progress=activeUnit||(document.getElementById('progress-input').value.trim());
+  sendRecord(subject,mins,progress);
 }
 
-function sendRecord(subject,minutes){
-  if(!selectedChild){alert('請先選擇孩子名字！');return;}
-  var payload={child:selectedChild,time:String(minutes),subjects:[subject],ways:selectedWays.slice(),progress:document.getElementById('progress').value.trim()};
-  fetch(SCRIPT_URL+'?data='+encodeURIComponent(JSON.stringify(payload)),{method:'GET',mode:'no-cors'}).then(function(){
+async function sendRecord(subject,minutes,progress){
+  var payload={child:selectedChild,time:String(minutes),subjects:[subject],ways:selectedWays.slice(),progress:progress||''};
+  try{
+    await fetch(SCRIPT_URL+'?data='+encodeURIComponent(JSON.stringify(payload)),{method:'GET',mode:'no-cors'});
+    // 完成後清除該單元的累積時間
+    var key=subject+'::'+activeUnit;
+    delete unitTimers[key];
+    saveTimerStateLocal();
+    // 如果是目標單元，標記完成
+    if(activeSubject&&activeUnit){
+      await markGoal(activeSubject,activeUnit,true,true);
+    }
     delete cachedData[selectedChild];
     loadAllStats();
-    clearTimerState();
     document.getElementById('success-name').textContent=selectedChild+'，太棒了！';
     document.getElementById('form-view').style.display='none';
     document.getElementById('success-view').style.display='block';
-  }).catch(function(){alert('傳送失敗，請確認網路連線。');});
+  }catch(e){alert('傳送失敗，請確認網路連線。');}
+}
+
+async function markGoal(subject,unit,done,silent){
+  var action=done?'markDone':'unmarkDone';
+  var url=SCRIPT_URL+'?action='+action+'&child='+encodeURIComponent(selectedChild)
+    +'&subject='+encodeURIComponent(subject)+'&unit='+encodeURIComponent(unit);
+  // 樂觀更新
+  var goals=goalsData[selectedChild]||[];
+  var g=goals.find(function(x){return x.subject===subject&&x.unit===unit;});
+  if(g){g.done=done;g.doneAt=done?new Date().toLocaleDateString('zh-TW'):'';}
+  if(!silent) renderGoalsArea();
+  try{await fetch(url,{method:'GET',mode:'no-cors'});}catch(e){}
 }
 
 function playDone(){
@@ -486,99 +915,38 @@ function playDone(){
   }catch(e){}
 }
 
-function renderTimerCards(){
-  var container=document.getElementById('timer-cards');
-  container.innerHTML='';
-  if(selectedSubject){
-    var div=document.createElement('div');
-    div.id='tc_'+selectedSubject.replace(/[^\w]/g,'_');
-    container.appendChild(div);
-    renderTimerCard(selectedSubject);
-  }
+function toggleWay(el){
+  var v=el.textContent.trim();
+  var idx=selectedWays.indexOf(v);
+  if(idx>=0){selectedWays.splice(idx,1);el.classList.remove('sel-way');}
+  else{selectedWays.push(v);el.classList.add('sel-way');}
 }
 
-function renderTimerCard(subject){
-  var id='tc_'+subject.replace(/[^\w]/g,'_');
-  var el=document.getElementById(id);
-  if(!el){
-    el=document.createElement('div');
-    el.id=id;
-    document.getElementById('timer-cards').appendChild(el);
-  }
-  var t=timers[subject];
-  if(!t){el.innerHTML='';return;}
-  var elapsed=t.total-t.remaining+t.overtimeSec;
-  var mins=Math.max(0,Math.round(elapsed/60));
-  var pct=Math.min(100,Math.round((t.total-t.remaining)/t.total*100));
-  var timeStr=t.overtime?('+'+fmtTime(t.overtimeSec)):fmtTime(t.remaining);
-  var timeLabel=t.overtime?('超時 '+timeStr):timeStr;
-  var isOT=t.overtime;
-  var cardCls='tc'+(t.done?' done':(isOT?' overtime':(t.running?' active':'')));
-  var timeCls='tc-time'+(isOT?' ot':'');
-  var barCls='tc-bar'+(isOT?' ot':'');
-  var weekDone=getWeekDone(subject);
-  var bl=(BASELINE[subject]||BASELINE.def).week;
-  var rem=Math.max(0,bl-weekDone);
-  var pendingText=rem>0?('本週還差 '+rem+' 分'):'本週已達標 ✓';
-  var pendingCls=rem>0?'tc-pending warn':'tc-pending ok';
-  var btnsHTML='';
-  if(t.done){
-    btnsHTML='<div style="font-size:14px;color:#2e7d32;font-weight:800;text-align:center">已記錄 '+mins+' 分鐘 ✓</div>';
-  } else if(isOT){
-    btnsHTML='<button class="tc-btn finish" onclick="finishTimer(\''+subject+'\')">🎉 完成了！('+mins+'分)</button>';
-  } else {
-    var startLabel=t.running?'⏸ 暫停':'▶ 開始';
-    btnsHTML='<button class="tc-btn primary" onclick="toggleTimer(\''+subject+'\')">'+startLabel+'</button>'
-      +'<button class="tc-btn" onclick="finishTimer(\''+subject+'\')">結束 ('+mins+'分)</button>';
-  }
-  el.className=cardCls;
-  el.innerHTML='<div class="tc-top"><div class="tc-subject">'+subject+'</div><div class="'+timeCls+'">'+timeLabel+'</div></div>'
-    +'<div class="tc-bar-wrap"><div class="'+barCls+'" style="width:'+pct+'%"></div></div>'
-    +'<div class="tc-btns">'+btnsHTML+'</div>'
-    +'<div class="'+pendingCls+'">'+pendingText+'</div>';
+function resetForm(){
+  selectedChild='';activeSubject='';activeUnit='';activeOtherSubject='';selectedWays=[];
+  unitTimers={};
+  stopTimer(true);
+  document.querySelectorAll('.child-card').forEach(function(c){c.classList.remove('selected');});
+  document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('sel-subject','sel-way');});
+  document.getElementById('progress-input').value='';
+  document.getElementById('goals-area').style.display='none';
+  document.getElementById('other-section').style.display='none';
+  document.getElementById('ways-section').style.display='none';
+  document.getElementById('form-view').style.display='block';
+  document.getElementById('success-view').style.display='none';
 }
 
-function saveTimerState(){
-  try{
-    var state={timers:{},selectedSubject:selectedSubject,selectedChild:selectedChild,selectedTime:selectedTime};
-    Object.keys(timers).forEach(function(s){
-      var t=timers[s];
-      state.timers[s]={total:t.total,remaining:t.remaining,running:false,overtime:t.overtime,overtimeSec:t.overtimeSec,done:t.done,started:t.started,interval:null};
-    });
-    localStorage.setItem('timerState',JSON.stringify(state));
-  }catch(e){}
-}
-
-function loadTimerState(){
-  try{
-    var raw=localStorage.getItem('timerState');
-    if(!raw) return;
-    var state=JSON.parse(raw);
-    if(state.selectedChild){
-      selectedChild=state.selectedChild;
-      var card=document.getElementById('card-'+selectedChild.toLowerCase());
-      if(card) card.classList.add('selected');
-    }
-    if(state.selectedTime){
-      selectedTime=state.selectedTime;
-      document.querySelectorAll('#time-chips .chip').forEach(function(c){
-        if(c.textContent.trim()===selectedTime+' 分') c.classList.add('sel-time');
-      });
-    }
-    if(state.timers) Object.keys(state.timers).forEach(function(s){timers[s]=Object.assign({},state.timers[s],{interval:null,running:false});});
-    if(state.selectedSubject){
-      selectedSubject=state.selectedSubject;
-      document.querySelectorAll('.chip').forEach(function(c){
-        if(c.textContent.trim()===selectedSubject) c.classList.add('sel-subject');
-      });
-      document.getElementById('timer-section').style.display='block';
-      renderTimerCards();
-    }
-  }catch(e){}
-}
-
-function clearTimerState(){
-  try{localStorage.removeItem('timerState');}catch(e){}
+function jumpToToday(){
+  // 切換統計到今日
+  statsPeriod='today';
+  document.querySelectorAll('.period-btn').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('.period-btn').forEach(function(b){
+    if(b.textContent==='今日') b.classList.add('active');
+  });
+  renderBoth();
+  // 捲動到統計區
+  var divider=document.querySelector('.divider');
+  if(divider) divider.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function renderTodayBanner(){
@@ -586,62 +954,18 @@ function renderTodayBanner(){
   if(!selectedChild||!cachedData[selectedChild]){el.innerHTML='<div class="today-empty">今天還沒有紀錄，快開始吧！</div>';return;}
   var rows=cachedData[selectedChild];
   var today=new Date();today.setHours(0,0,0,0);
-  var todayRows=rows.filter(function(r){var d=new Date(r.timestamp);d.setHours(0,0,0,0);return d.getTime()===today.getTime();});
-  if(!todayRows.length){el.innerHTML='<div class="today-empty">今天還沒有紀錄，快開始吧！</div>';return;}
-  var total=todayRows.reduce(function(s,r){return s+r.time;},0);
-  var subMap={};
-  todayRows.forEach(function(r){if(r.subjects)r.subjects.split('、').forEach(function(s){subMap[s]=(subMap[s]||0)+r.time;});});
-  var tags=Object.keys(subMap).map(function(s){return '<div class="today-tag">'+s+' '+subMap[s]+'分</div>';}).join('');
-  el.innerHTML='<div class="today-summary"><div><div class="today-total">'+total+'</div><div class="today-lbl">分鐘</div></div></div><div class="today-subjects">'+tags+'</div>';
-}
-
-async function loadAllStats(){
-  await Promise.all(['Jung','Vivi'].map(async function(child){
-    if(cachedData[child]) return;
-    try{
-      var res=await fetch(SCRIPT_URL+'?action=read&child='+child);
-      var json=await res.json();
-      cachedData[child]=(json.rows||[]).map(function(r){return Object.assign({},r,{timestamp:new Date(r.timestamp)});});
-    }catch(e){cachedData[child]=[];}
-  }));
-  renderBoth();
-  renderTodayBanner();
-}
-
-function submitForm(){
-  var err=document.getElementById('err-msg');
-  if(!selectedChild||!selectedTime||!selectedSubject){err.style.display='block';return;}
-  err.style.display='none';
-  var btn=document.getElementById('submit-btn');
-  btn.disabled=true;btn.textContent='傳送中…';
-  var payload={child:selectedChild,time:String(selectedTime),subjects:[selectedSubject],ways:selectedWays.slice(),progress:document.getElementById('progress').value.trim()};
-  fetch(SCRIPT_URL+'?data='+encodeURIComponent(JSON.stringify(payload)),{method:'GET',mode:'no-cors'}).then(function(){
-    document.getElementById('success-name').textContent=selectedChild+'，太棒了！';
-    document.getElementById('form-view').style.display='none';
-    document.getElementById('success-view').style.display='block';
-    delete cachedData[selectedChild];
-    loadAllStats();
-  }).catch(function(){
-    btn.disabled=false;btn.textContent='記錄完成 ✓';
-    err.textContent='傳送失敗，請確認網路連線。';err.style.display='block';
-  });
-}
-
-function resetForm(){
-  selectedChild='';selectedTime=25;selectedSubject='';selectedWays=[];
-  Object.values(timers).forEach(function(t){clearInterval(t.interval);});
-  timers={};activeSubject=null;
-  document.querySelectorAll('.chip').forEach(function(c){c.className=c.className.replace(/sel-\w+/g,'').trim();});
-  document.querySelectorAll('.child-card').forEach(function(c){c.classList.remove('selected');});
-  document.getElementById('progress').value='';
-  document.getElementById('timer-cards').innerHTML='';
-  document.getElementById('timer-section').style.display='none';
-  document.getElementById('err-msg').style.display='none';
-  document.getElementById('submit-btn').disabled=false;
-  document.getElementById('submit-btn').textContent='記錄完成 ✓';
-  document.getElementById('form-view').style.display='block';
-  document.getElementById('success-view').style.display='none';
-  clearTimerState();
+  var tr=rows.filter(function(r){var d=new Date(r.timestamp);d.setHours(0,0,0,0);return d.getTime()===today.getTime();});
+  if(!tr.length){el.innerHTML='<div class="today-empty">今天還沒有紀錄，快開始吧！</div>';return;}
+  var total=tr.reduce(function(s,r){return s+r.time;},0);
+  var sm={};
+  tr.forEach(function(r){if(r.subjects)r.subjects.split('、').forEach(function(s){sm[s]=(sm[s]||0)+r.time;});});
+  var tags=Object.keys(sm).map(function(s){return '<div class="today-tag">'+s+' <b>'+sm[s]+'分</b></div>';}).join('');
+  var sessions=tr.length;
+  el.innerHTML='<div style="display:flex;gap:20px;align-items:baseline;margin-bottom:10px">'
+    +'<div><div class="today-total">'+total+'</div><div class="today-lbl">分鐘</div></div>'
+    +'<div><div class="today-total" style="font-size:24px">'+sessions+'</div><div class="today-lbl">次學習</div></div>'
+    +'</div><div class="today-subjects">'+tags+'</div>'
+    +'<div style="font-size:11px;opacity:.6;margin-top:8px;font-weight:500">點此查看今日詳細↓</div>';
 }
 
 function switchPeriod(p,el){
@@ -654,7 +978,7 @@ function switchPeriod(p,el){
 function getPeriodRange(rows){
   var t=new Date();t.setHours(0,0,0,0);
   var y=t.getFullYear(),m=t.getMonth();
-  if(statsPeriod==='today'){return{start:new Date(t),end:new Date(t.getTime()+86400000)};}
+  if(statsPeriod==='today') return{start:new Date(t),end:new Date(t.getTime()+86400000)};
   if(statsPeriod==='week'){var s=new Date(t);s.setDate(t.getDate()-t.getDay());return{start:s,end:new Date(t.getTime()+86400000)};}
   if(statsPeriod==='month') return{start:new Date(y,m,1),end:new Date(y,m+1,1)};
   if(statsPeriod==='quarter'){var q=Math.floor(m/3);return{start:new Date(y,q*3,1),end:new Date(y,q*3+3,1)};}
@@ -680,6 +1004,20 @@ function getBaseline(s,p){
   return b[p]||null;
 }
 
+async function loadAllStats(){
+  await Promise.all(['Jung','Vivi'].map(async function(child){
+    if(cachedData[child]) return;
+    try{
+      var res=await fetch(SCRIPT_URL+'?action=read&child='+child);
+      var json=await res.json();
+      cachedData[child]=(json.rows||[]).map(function(r){return Object.assign({},r,{timestamp:new Date(r.timestamp)});});
+    }catch(e){cachedData[child]=[];}
+  }));
+  renderBoth();
+  renderTodayBanner();
+  updatePending();
+}
+
 function renderBoth(){renderOne('Jung',false);renderOne('Vivi',true);}
 
 function renderOne(child,isVivi){
@@ -698,50 +1036,62 @@ function renderOne(child,isVivi){
   var totalDays=daySet.size;
   var isAll=statsPeriod==='all';
   var periodLabel={today:'今日',week:'本週',month:'本月',quarter:'本季',half:'半年',year:'全年',all:'全部'}[statsPeriod];
-  var subjectMap={};
-  ALL_SUBJECTS.forEach(function(s){subjectMap[s]=0;});
+
+  var subjectMap={};ALL_SUBJECTS.forEach(function(s){subjectMap[s]=0;});
   filtered.forEach(function(r){if(!r.subjects)return;r.subjects.split('、').forEach(function(s){if(subjectMap[s]!==undefined)subjectMap[s]+=r.time;});});
+
   var trendHTML='';
   if(!isAll&&statsPeriod!=='today'){
     var trendCols=[];
-    if(statsPeriod==='week'){
-      trendCols=DAYS.map(function(label,i){return{label:label,min:filtered.filter(function(r){return r.timestamp.getDay()===i;}).reduce(function(s,r){return s+r.time;},0)};});
-    } else if(statsPeriod==='month'){
-      var dim=new Date(start.getFullYear(),start.getMonth()+1,0).getDate();
-      for(var i=0;i<dim;i++){(function(d){trendCols.push({label:String(d+1),min:filtered.filter(function(r){return r.timestamp.getDate()===d+1;}).reduce(function(s,r){return s+r.time;},0)});})(i);}
-    } else {
-      trendCols=getMonthsInRange(start,end).map(function(obj){return{label:MONTHS[obj.m],min:filtered.filter(function(r){return r.timestamp.getFullYear()===obj.y&&r.timestamp.getMonth()===obj.m;}).reduce(function(s,r){return s+r.time;},0)};});
-    }
+    if(statsPeriod==='week'){trendCols=DAYS.map(function(label,i){return{label:label,min:filtered.filter(function(r){return r.timestamp.getDay()===i;}).reduce(function(s,r){return s+r.time;},0)};});}
+    else if(statsPeriod==='month'){var dim=new Date(start.getFullYear(),start.getMonth()+1,0).getDate();trendCols=[];for(var i=0;i<dim;i++){(function(d){trendCols.push({label:String(d+1),min:filtered.filter(function(r){return r.timestamp.getDate()===d+1;}).reduce(function(s,r){return s+r.time;},0)});})(i);}}
+    else{trendCols=getMonthsInRange(start,end).map(function(obj){return{label:MONTHS[obj.m],min:filtered.filter(function(r){return r.timestamp.getFullYear()===obj.y&&r.timestamp.getMonth()===obj.m;}).reduce(function(s,r){return s+r.time;},0)};});}
     var maxT=Math.max.apply(null,trendCols.map(function(c){return c.min;}).concat([1]));
     trendHTML='<div class="card"><div class="card-title">趨勢</div><div class="trend-wrap">'+trendCols.map(function(c){return '<div class="trend-col"><div class="trend-min">'+(c.min>0?c.min:'')+'</div><div class="trend-bar '+cc+'" style="height:'+Math.round(c.min/maxT*52)+'px"></div><div class="trend-day">'+c.label+'</div></div>';}).join('')+'</div></div>';
   }
 
+  var totalPeriodMin=Math.max(periodMin,1);
+  var maxAll=Math.max.apply(null,ALL_SUBJECTS.map(function(s){return subjectMap[s];}).concat([1]));
   var subjectBars=ALL_SUBJECTS.map(function(s){
-    var m=subjectMap[s],baseline=getBaseline(s,statsPeriod),pct=0,fillClass='',pctLabel='';
-    if(baseline){pct=Math.min(Math.round(m/baseline*100),100);fillClass=m>=baseline?'over':(m>0?cc:'zero');pctLabel=m>0?Math.round(m/baseline*100)+'%':'';}
-    else{fillClass=m>0?cc:'zero';}
-    return{s:s,m:m,pct:pct,fillClass:fillClass,pctLabel:pctLabel,baseline:baseline};
+    var m=subjectMap[s];
+    var baseline=getBaseline(s,statsPeriod);
+    var fillClass='',barW=0,label1='',label2='';
+    if(isAll){
+      // 全部模式：佔比（圓餅圖概念，總和=100%）
+      var totalAll=Math.max(allMin,1);
+      barW=m>0?Math.round(m/totalAll*100):0;
+      fillClass=m>0?cc:'zero';
+      label1=m>0?m+'分':'—';
+      label2=m>0?Math.round(m/totalAll*100)+'%':'';
+    } else {
+      // 其他區間：進度條=佔比，標籤=達成率/佔比
+      var sharePct=m>0?Math.round(m/totalPeriodMin*100):0;
+      var achievePct=baseline?Math.min(Math.round(m/baseline*100),100):0;
+      barW=sharePct; // 進度條用佔比
+      if(m===0) barW=0;
+      fillClass=baseline?(m>=baseline?'over':(m>0?cc:'zero')):(m>0?cc:'zero');
+      label1=m>0?m+'分':'—';
+      if(m>0&&baseline) label2=achievePct+'% / '+sharePct+'%';
+      else if(m>0) label2=sharePct+'%';
+      else label2='';
+    }
+    return{s:s,m:m,fillClass:fillClass,barW:barW,label1:label1,label2:label2};
   });
-  var maxAll=Math.max.apply(null,subjectBars.map(function(x){return x.m;}).concat([1]));
   var barsHTML=subjectBars.map(function(x){
-    var w=x.baseline?x.pct:(x.m>0?Math.round(x.m/maxAll*100):2);
-    return '<div class="bar-row"><div class="bar-label">'+x.s+'</div><div class="bar-wrap"><div class="bar-fill '+x.fillClass+'" style="width:'+w+'%"></div></div><div class="bar-num">'+(x.m>0?x.m+'分':'—')+'</div><div class="bar-pct">'+x.pctLabel+'</div></div>';
+    return '<div class="bar-row"><div class="bar-label">'+x.s+'</div>'
+      +'<div class="bar-wrap"><div class="bar-fill '+x.fillClass+'" style="width:'+x.barW+'%"></div></div>'
+      +'<div class="bar-num">'+x.label1+'</div>'
+      +'<div class="bar-pct" style="width:52px;font-size:9px;text-align:right;flex-shrink:0">'+x.label2+'</div></div>';
   }).join('');
-  var progBySubject={};
-  ALL_SUBJECTS.forEach(function(s){progBySubject[s]=[];});
+
+  var progBySubject={};ALL_SUBJECTS.forEach(function(s){progBySubject[s]=[];});
   filtered.forEach(function(r){
     if(!r.progress||!r.progress.trim()||!r.subjects)return;
     var d=new Date(r.timestamp),dateStr=(d.getMonth()+1)+'/'+d.getDate();
     r.subjects.split('、').forEach(function(s){if(progBySubject[s]!==undefined)progBySubject[s].push({date:dateStr,text:r.progress});});
   });
   var progSubjects=ALL_SUBJECTS.filter(function(s){return progBySubject[s].length>0;});
-  var progHTML=progSubjects.length===0?'<div class="empty">尚無進度紀錄</div>':progSubjects.map(function(s){
-    return '<div class="prog-subject"><div class="prog-subject-name">'+s+'</div>'+progBySubject[s].map(function(e){return '<div class="prog-entry"><div class="prog-date">'+e.date+'</div><div class="prog-text">'+e.text+'</div></div>';}).join('')+'</div>';
-  }).join('');
-  var todayLabel=statsPeriod==='today'?'今日':'今日（分）';
-  var topCard=isAll
-    ?'<div class="total-card"><div class="big-num'+(isVivi?' vn':'')+'">'+allMin+'</div><div class="big-lbl">總學習時間（分）</div><div class="sub-stats"><div class="sub-item"><div class="sub-val">'+todayMin+'</div><div class="sub-lbl">今日</div></div><div class="sub-item"><div class="sub-val">'+totalDays+'</div><div class="sub-lbl">累計天數</div></div><div class="sub-item"><div class="sub-val streak-val">'+streak+'🔥</div><div class="sub-lbl">連續</div></div></div></div>'
-    :'<div class="metric-grid"><div class="metric"><div class="val">'+todayMin+'</div><div class="lbl">今日（分）</div></div><div class="metric"><div class="val">'+periodMin+'</div><div class="lbl">'+periodLabel+'（分）</div></div><div class="metric"><div class="val streak-val">'+streak+'🔥</div><div class="lbl">連續天數</div></div></div>';
+
   var todayDetailHTML='';
   if(statsPeriod==='today'&&filtered.length>0){
     var todayEntries=filtered.slice().reverse().map(function(r){
@@ -754,17 +1104,32 @@ function renderOne(child,isVivi){
       if(r.progress&&r.progress.trim()) parts.push('— '+r.progress);
       return '<div class="prog-entry"><div class="prog-date">'+hm+'</div><div class="prog-text">'+parts.join(' ')+'</div></div>';
     }).join('');
-    todayDetailHTML='<div class="card"><div class="card-title">🕐 今日紀錄明細</div>'+todayEntries+'</div>';
+    todayDetailHTML='<div class="card"><div class="card-title">🕐 今日明細</div>'+todayEntries+'</div>';
   }
+
+  var topCard=isAll
+    ?'<div class="total-card"><div class="big-num'+(isVivi?' vn':'')+'">'+allMin+'</div><div class="big-lbl">總學習時間（分）</div><div class="sub-stats"><div class="sub-item"><div class="sub-val">'+todayMin+'</div><div class="sub-lbl">今日</div></div><div class="sub-item"><div class="sub-val">'+totalDays+'</div><div class="sub-lbl">累計天數</div></div><div class="sub-item"><div class="sub-val streak-val">'+streak+'🔥</div><div class="sub-lbl">連續</div></div></div></div>'
+    :'<div class="metric-grid"><div class="metric"><div class="val">'+todayMin+'</div><div class="lbl">今日（分）</div></div><div class="metric"><div class="val">'+periodMin+'</div><div class="lbl">'+periodLabel+'（分）</div></div><div class="metric"><div class="val streak-val">'+streak+'🔥</div><div class="lbl">連續天數</div></div></div>';
+
+  var progHTML=progSubjects.length===0?'<div class="empty">尚無進度紀錄</div>':progSubjects.map(function(s){
+    return '<div class="prog-subject"><div class="prog-subject-name">'+s+'</div>'+progBySubject[s].map(function(e){return '<div class="prog-entry"><div class="prog-date">'+e.date+'</div><div class="prog-text">'+e.text+'</div></div>';}).join('')+'</div>';
+  }).join('');
+
   document.getElementById('stats-'+child.toLowerCase()).innerHTML=topCard+trendHTML
-    +'<div class="card"><div class="card-title">各科累計'+(isAll?'':'<span style="font-size:10px;color:#88bbdd;margin-left:4px;font-weight:600;">綠色＝達標</span>')+'</div>'+barsHTML+'</div>'
+    +'<div class="card"><div class="card-title">各科累計'+(isAll?'<span style="font-size:10px;color:#88bbdd;margin-left:4px;font-weight:600">相對比例</span>':'<span style="font-size:10px;color:#88bbdd;margin-left:4px;font-weight:600">達成率/佔比 綠＝達標</span>')+'</div>'+barsHTML+'</div>'
     +todayDetailHTML
     +'<div class="card"><div class="card-title">📝 進度紀錄</div>'+progHTML+'</div>';
-  if(child===selectedChild) renderTodayBanner();
 }
 
-loadTimerState();
-loadAllStats();
+// 頁面載入時恢復狀態
+(async function(){
+  loadTimerStateLocal();
+  await loadAllStats();
+  // 如果有恢復的孩子，載入目標
+  if(selectedChild){
+    await loadGoalsForChild();
+  }
+})();
 </script>
 </body>
 </html>
