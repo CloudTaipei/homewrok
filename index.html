@@ -354,6 +354,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="period-btn" onclick="switchPeriod('year',this)">全年</div>
       <div class="period-btn" onclick="switchPeriod('all',this)">全部</div>
     </div>
+    <div style="margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:12px;color:#5ba3c9;font-weight:600">🔍 查詢特定日期</span>
+      <input type="date" id="date-query" style="padding:5px 10px;border:2px solid #b3d9f0;border-radius:999px;font-size:12px;color:#0066aa;outline:none;font-family:inherit"
+        onchange="queryDate(this.value)">
+      <button onclick="clearDateQuery()" style="padding:5px 14px;border:2px solid #b3d9f0;border-radius:999px;font-size:12px;color:#5ba3c9;background:#fff;cursor:pointer;font-weight:600">清除</button>
+    </div>
+    <div id="date-query-result" style="display:none;margin-top:10px"></div>
   </div>
   <div class="dual-stats">
     <div><div class="dual-name jung-name">🐨 Jung</div><div id="stats-jung"><div class="loading">載入中…</div></div></div>
@@ -1034,6 +1041,56 @@ function renderTodayBanner(){
     +'<div style="font-size:11px;opacity:.6;margin-top:8px;font-weight:500">點此查看今日詳細↓</div>';
 }
 
+function queryDate(dateStr){
+  if(!dateStr) return;
+  var d=new Date(dateStr);
+  d.setHours(0,0,0,0);
+  var next=new Date(d.getTime()+86400000);
+  var result=document.getElementById('date-query-result');
+  result.style.display='block';
+
+  var html='<div style="background:#fff;border:2px solid #d0eaf8;border-radius:16px;padding:14px;margin-top:4px">';
+  html+='<div style="font-size:13px;font-weight:800;color:#0088cc;margin-bottom:10px">'+
+    (d.getMonth()+1)+'月'+d.getDate()+'日（週'+['日','一','二','三','四','五','六'][d.getDay()]+'）學習明細</div>';
+
+  ['Jung','Vivi'].forEach(function(child){
+    var rows=cachedData[child]||[];
+    var dayRows=rows.filter(function(r){
+      var rd=new Date(r.timestamp);rd.setHours(0,0,0,0);
+      return rd.getTime()===d.getTime();
+    });
+    if(!dayRows.length) return;
+    var isVivi=child==='Vivi';
+    var totalMin=dayRows.filter(function(r){return !r.subjects||r.subjects.indexOf('休息')<0;}).reduce(function(s,r){return s+r.time;},0);
+    var restMin=dayRows.filter(function(r){return r.subjects&&r.subjects.indexOf('休息')>=0;}).reduce(function(s,r){return s+r.time;},0);
+    html+='<div style="margin-bottom:10px">';
+    html+='<div style="font-size:12px;font-weight:700;color:'+(isVivi?'#e91e8c':'#0088cc')+';margin-bottom:6px">'+(isVivi?'🐰':'🐨')+' '+child+' — 學習'+totalMin+'分'+(restMin>0?' / 休息'+restMin+'分':'')+'</div>';
+    dayRows.forEach(function(r){
+      var t=new Date(r.timestamp);
+      var hm=(t.getHours()<10?'0':'')+t.getHours()+':'+(t.getMinutes()<10?'0':'')+t.getMinutes();
+      var isRest=r.subjects&&r.subjects.indexOf('休息')>=0;
+      html+='<div style="display:flex;gap:8px;align-items:baseline;padding:4px 0;border-bottom:1px solid #f0f0f0">';
+      html+='<span style="font-size:10px;color:#0088cc;width:36px;flex-shrink:0;font-weight:700">'+hm+'</span>';
+      html+='<span style="font-size:11px;color:'+(isRest?'#9e9e9e':'#333');
+      html+=';font-weight:600">'+r.subjects+'</span>';
+      html+='<span style="font-size:11px;color:#aaa;flex-shrink:0">'+r.time+'分</span>';
+      if(r.progress&&r.progress.trim()) html+='<span style="font-size:10px;color:#88bbdd">'+r.progress+'</span>';
+      html+='</div>';
+    });
+    html+='</div>';
+  });
+  html+='</div>';
+  result.innerHTML=html;
+
+  // 捲動到結果
+  result.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function clearDateQuery(){
+  document.getElementById('date-query').value='';
+  document.getElementById('date-query-result').style.display='none';
+}
+
 function switchPeriod(p,el){
   statsPeriod=p;
   document.querySelectorAll('.period-btn').forEach(function(b){b.classList.remove('active');});
@@ -1198,6 +1255,15 @@ function renderOne(child,isVivi){
   loadTimerStateLocal();
   flushQueue();
   await loadAllStats();
+  // 設定日期查詢範圍
+  try{
+    var today=new Date();
+    var halfYearAgo=new Date(today);
+    halfYearAgo.setMonth(halfYearAgo.getMonth()-6);
+    var fmt=function(d){return d.getFullYear()+'-'+(d.getMonth()<9?'0':'')+(d.getMonth()+1)+'-'+(d.getDate()<10?'0':'')+d.getDate();};
+    var dq=document.getElementById('date-query');
+    if(dq){dq.max=fmt(today);dq.min=fmt(halfYearAgo);}
+  }catch(e){}
   // 如果有恢復的孩子，載入目標
   if(selectedChild){
     await loadGoalsForChild();
