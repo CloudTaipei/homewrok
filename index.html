@@ -859,6 +859,7 @@ function updatePending(){
   var p=document.getElementById('timer-pending');
   var subject=activeSubject||activeOtherSubject;
   if(!subject){p.textContent='';return;}
+  if(subject==='休息'){p.textContent='';return;}
   var bl=(BASELINE[subject]||BASELINE.def).week;
   var rows=cachedData[selectedChild]||[];
   var t=new Date();t.setHours(0,0,0,0);
@@ -1092,10 +1093,13 @@ function renderOne(child,isVivi){
   var start=range.start,end=range.end;
   var today=new Date();today.setHours(0,0,0,0);
   var filtered=rows.filter(function(r){return r.timestamp>=start&&r.timestamp<end;});
-  var allMin=rows.reduce(function(s,r){return s+r.time;},0);
-  var todayMin=rows.filter(function(r){var d=new Date(r.timestamp);d.setHours(0,0,0,0);return d.getTime()===today.getTime();}).reduce(function(s,r){return s+r.time;},0);
-  var periodMin=filtered.reduce(function(s,r){return s+r.time;},0);
-  var daySet=new Set(rows.map(function(r){var d=new Date(r.timestamp);d.setHours(0,0,0,0);return d.getTime();}));
+  // 排除休息，只計算學習時間
+  var filteredStudy=filtered.filter(function(r){return !r.subjects||r.subjects.split('、').indexOf('休息')<0;});
+  var rowsStudy=rows.filter(function(r){return !r.subjects||r.subjects.split('、').indexOf('休息')<0;});
+  var allMin=rowsStudy.reduce(function(s,r){return s+r.time;},0);
+  var todayMin=rowsStudy.filter(function(r){var d=new Date(r.timestamp);d.setHours(0,0,0,0);return d.getTime()===today.getTime();}).reduce(function(s,r){return s+r.time;},0);
+  var periodMin=filteredStudy.reduce(function(s,r){return s+r.time;},0);
+  var daySet=new Set(rowsStudy.map(function(r){var d=new Date(r.timestamp);d.setHours(0,0,0,0);return d.getTime();}));
   var streak=0,chk=new Date(today);
   while(daySet.has(chk.getTime())){streak++;chk.setDate(chk.getDate()-1);}
   var totalDays=daySet.size;
@@ -1103,14 +1107,14 @@ function renderOne(child,isVivi){
   var periodLabel={today:'今日',week:'本週',month:'本月',quarter:'本季',half:'半年',year:'全年',all:'全部'}[statsPeriod];
 
   var subjectMap={};ALL_SUBJECTS.forEach(function(s){subjectMap[s]=0;});
-  filtered.forEach(function(r){if(!r.subjects)return;r.subjects.split('、').forEach(function(s){if(subjectMap[s]!==undefined)subjectMap[s]+=r.time;});});
+  filteredStudy.forEach(function(r){if(!r.subjects)return;r.subjects.split('、').forEach(function(s){if(subjectMap[s]!==undefined)subjectMap[s]+=r.time;});});
 
   var trendHTML='';
   if(!isAll&&statsPeriod!=='today'){
     var trendCols=[];
-    if(statsPeriod==='week'){trendCols=DAYS.map(function(label,i){return{label:label,min:filtered.filter(function(r){return r.timestamp.getDay()===i;}).reduce(function(s,r){return s+r.time;},0)};});}
-    else if(statsPeriod==='month'){var dim=new Date(start.getFullYear(),start.getMonth()+1,0).getDate();trendCols=[];for(var i=0;i<dim;i++){(function(d){trendCols.push({label:String(d+1),min:filtered.filter(function(r){return r.timestamp.getDate()===d+1;}).reduce(function(s,r){return s+r.time;},0)});})(i);}}
-    else{trendCols=getMonthsInRange(start,end).map(function(obj){return{label:MONTHS[obj.m],min:filtered.filter(function(r){return r.timestamp.getFullYear()===obj.y&&r.timestamp.getMonth()===obj.m;}).reduce(function(s,r){return s+r.time;},0)};});}
+    if(statsPeriod==='week'){trendCols=DAYS.map(function(label,i){return{label:label,min:filteredStudy.filter(function(r){return r.timestamp.getDay()===i;}).reduce(function(s,r){return s+r.time;},0)};});}
+    else if(statsPeriod==='month'){var dim=new Date(start.getFullYear(),start.getMonth()+1,0).getDate();trendCols=[];for(var i=0;i<dim;i++){(function(d){trendCols.push({label:String(d+1),min:filteredStudy.filter(function(r){return r.timestamp.getDate()===d+1;}).reduce(function(s,r){return s+r.time;},0)});})(i);}}
+    else{trendCols=getMonthsInRange(start,end).map(function(obj){return{label:MONTHS[obj.m],min:filteredStudy.filter(function(r){return r.timestamp.getFullYear()===obj.y&&r.timestamp.getMonth()===obj.m;}).reduce(function(s,r){return s+r.time;},0)};});}
     var maxT=Math.max.apply(null,trendCols.map(function(c){return c.min;}).concat([1]));
     trendHTML='<div class="card"><div class="card-title">趨勢</div><div class="trend-wrap">'+trendCols.map(function(c){return '<div class="trend-col"><div class="trend-min">'+(c.min>0?c.min:'')+'</div><div class="trend-bar '+cc+'" style="height:'+Math.round(c.min/maxT*52)+'px"></div><div class="trend-day">'+c.label+'</div></div>';}).join('')+'</div></div>';
   }
@@ -1150,7 +1154,7 @@ function renderOne(child,isVivi){
   }).join('');
 
   // 計算休息時間（獨立，不納入各科統計）
-  var restMin=filtered.filter(function(r){return r.subjects&&r.subjects.split('、').indexOf('休息')>=0;}).reduce(function(s,r){return s+r.time;},0);
+  var restMin=filtered.filter(function(r){return r.subjects&&r.subjects.indexOf('休息')>=0;}).reduce(function(s,r){return s+r.time;},0);
   var progBySubject={};ALL_SUBJECTS.forEach(function(s){progBySubject[s]=[];});
   filtered.forEach(function(r){
     if(!r.progress||!r.progress.trim()||!r.subjects)return;
