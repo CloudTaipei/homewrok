@@ -279,6 +279,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <!-- 其他科目（沒有目標的） -->
     <div class="other-section" id="other-section" style="display:none">
       <div class="sec-label">📚 學習主題（單選）</div>
+      <div style="margin-bottom:10px">
+        <div class="chip rest-chip" onclick="selectOtherSubject(this,'休息')" style="background:#f5f5f5;border-color:#bdbdbd;color:#757575;font-size:14px">☕ 休息</div>
+      </div>
       <div class="group-label">國語</div>
       <div class="chips">
         <div class="chip g1" onclick="selectOtherSubject(this,'國語－課內')">國語－課內</div>
@@ -407,6 +410,12 @@ function applyLeaveTime(){
       }
     } else {
       timerOvertimeSec+=away;
+    }
+    // 同步更新 unitTimers 裡的 elapsed
+    var key=(activeSubject||activeOtherSubject)+'::'+activeUnit;
+    if(key!='::'){
+      var curElapsed=timerTotal-timerRemaining+timerOvertimeSec;
+      unitTimers[key]={elapsed:curElapsed,total:timerTotal};
     }
     updateTimerDisplay();renderTimerBtns();
     saveTimerStateLocal();
@@ -862,38 +871,75 @@ function updatePending(){
 
 var _finishing=false;
 function finishTimer(){
-  if(_finishing) return; // 防止重複送出
+  if(_finishing) return;
   _finishing=true;
   clearInterval(timerInterval);timerInterval=null;timerRunning=false;
-  var elapsed=timerTotal-timerRemaining+timerOvertimeSec;
-  var mins=Math.max(1,Math.round(elapsed/60));
+  // 計算完整累積時間（包含之前暫停的累積）
+  var currentElapsed=timerTotal-timerRemaining+timerOvertimeSec;
   var subject=activeSubject||activeOtherSubject;
+  var key=subject+'::'+activeUnit;
+  var savedData=unitTimers[key];
+  var savedElapsed=savedData?(savedData.elapsed||0):0;
+  // 取較大值，避免重複累加
+  var totalElapsed=Math.max(currentElapsed,savedElapsed);
+  var mins=Math.max(1,Math.round(totalElapsed/60));
   var progress=activeUnit||(document.getElementById('progress-input').value.trim());
-  // 立刻禁用按鈕防止重複點擊
+  var finishKey=subject+'::'+activeUnit; // 在這裡記住key，避免後續被清空
   var btns=document.getElementById('timer-btns');
   if(btns) btns.innerHTML='<div style="text-align:center;color:#0088cc;font-size:13px;font-weight:600">記錄中…</div>';
-  sendRecord(subject,mins,progress);
+  sendRecord(subject,mins,progress,finishKey);
 }
 
-async function sendRecord(subject,minutes,progress){
+async function sendRecord(subject,minutes,progress,finishKey){
   var payload={child:selectedChild,time:String(minutes),subjects:[subject],ways:selectedWays.slice(),progress:progress||''};
+  // 先存到離線佇列
+  try{
+    var queue=JSON.parse(localStorage.getItem('sendQueue')||'[]');
+    queue.push(payload);
+    localStorage.setItem('sendQueue',JSON.stringify(queue));
+  }catch(e){}
+  // 嘗試送出
   try{
     await fetch(SCRIPT_URL+'?data='+encodeURIComponent(JSON.stringify(payload)),{method:'GET',mode:'no-cors'});
-    // 完成後清除該單元的累積時間
-    var key=subject+'::'+activeUnit;
-    delete unitTimers[key];
-    _finishing=false;
-    saveTimerStateLocal();
-    // 如果是目標單元，標記完成
-    if(activeSubject&&activeUnit){
-      await markGoal(activeSubject,activeUnit,true,true);
+    // 送出成功，從佇列移除
+    try{
+      var queue=JSON.parse(localStorage.getItem('sendQueue')||'[]');
+      queue=queue.filter(function(q){return !(q.child===payload.child&&q.time===payload.time&&q.subjects.join()===payload.subjects.join());});
+      localStorage.setItem('sendQueue',JSON.stringify(queue));
+    }catch(e){}
+  }catch(e){
+    // 斷線：資料已存在佇列，等網路恢復
+    console.log('斷線，資料已暫存，網路恢復後會自動送出');
+  }
+  // 不管有沒有送出成功，都繼續
+  var key=finishKey||(subject+'::'+activeUnit);
+  delete unitTimers[key];
+  _finishing=false;
+  saveTimerStateLocal();
+  if(activeSubject&&activeUnit){
+    await markGoal(activeSubject,activeUnit,true,true);
+  }
+  delete cachedData[selectedChild];
+  loadAllStats();
+  document.getElementById('success-name').textContent=selectedChild+'，太棒了！';
+  document.getElementById('form-view').style.display='none';
+  document.getElementById('success-view').style.display='block';
+  // 嘗試送出佇列裡其他未送出的資料
+  flushQueue();
+}
+
+async function flushQueue(){
+  try{
+    var queue=JSON.parse(localStorage.getItem('sendQueue')||'[]');
+    if(!queue.length) return;
+    var remaining=[];
+    for(var i=0;i<queue.length;i++){
+      try{
+        await fetch(SCRIPT_URL+'?data='+encodeURIComponent(JSON.stringify(queue[i])),{method:'GET',mode:'no-cors'});
+      }catch(e){remaining.push(queue[i]);}
     }
-    delete cachedData[selectedChild];
-    loadAllStats();
-    document.getElementById('success-name').textContent=selectedChild+'，太棒了！';
-    document.getElementById('form-view').style.display='none';
-    document.getElementById('success-view').style.display='block';
-  }catch(e){alert('傳送失敗，請確認網路連線。');}
+    localStorage.setItem('sendQueue',JSON.stringify(remaining));
+  }catch(e){}
 }
 
 async function markGoal(subject,unit,done,silent){
@@ -930,15 +976,25 @@ function toggleWay(el){
 }
 
 function resetForm(){
-  selectedChild='';activeSubject='';activeUnit='';activeOtherSubject='';selectedWays=[];
-  unitTimers={};
+  // 先記住剛完成的科目 key，再清空
+  var prevChild=selectedChild;
+  var doneKey=(activeSubject||activeOtherSubject)+'::'+activeUnit;
+  if(doneKey!='::') delete unitTimers[doneKey]; // 確保刪除完成的科目
+  activeSubject='';activeUnit='';activeOtherSubject='';selectedWays=[];
   stopTimer(true);
+  // 重新選回同一個孩子，不清空 unitTimers
   document.querySelectorAll('.child-card').forEach(function(c){c.classList.remove('selected');});
+  if(prevChild){
+    selectedChild=prevChild;
+    document.getElementById('card-'+prevChild.toLowerCase()).classList.add('selected');
+  } else {
+    selectedChild='';
+  }
   document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('sel-subject','sel-way');});
   document.getElementById('progress-input').value='';
-  document.getElementById('goals-area').style.display='none';
-  document.getElementById('other-section').style.display='none';
-  document.getElementById('ways-section').style.display='none';
+  document.getElementById('goals-area').style.display=prevChild?'block':'none';
+  document.getElementById('other-section').style.display=prevChild?'block':'none';
+  document.getElementById('ways-section').style.display=prevChild?'block':'none';
   document.getElementById('form-view').style.display='block';
   document.getElementById('success-view').style.display='none';
 }
@@ -966,7 +1022,9 @@ function renderTodayBanner(){
   var total=tr.reduce(function(s,r){return s+r.time;},0);
   var sm={};
   tr.forEach(function(r){if(r.subjects)r.subjects.split('、').forEach(function(s){sm[s]=(sm[s]||0)+r.time;});});
-  var tags=Object.keys(sm).map(function(s){return '<div class="today-tag">'+s+' <b>'+sm[s]+'分</b></div>';}).join('');
+  var restToday=tr.filter(function(r){return r.subjects&&r.subjects.split('、').indexOf('休息')>=0;}).reduce(function(s,r){return s+r.time;},0);
+  var tags=Object.keys(sm).filter(function(s){return s!=='休息';}).map(function(s){return '<div class="today-tag">'+s+' <b>'+sm[s]+'分</b></div>';}).join('');
+  if(restToday>0) tags+='<div class="today-tag" style="background:rgba(255,255,255,.15);color:rgba(255,255,255,.8)">☕ 休息 <b>'+restToday+'分</b></div>';
   var sessions=tr.length;
   el.innerHTML='<div style="display:flex;gap:20px;align-items:baseline;margin-bottom:10px">'
     +'<div><div class="today-total">'+total+'</div><div class="today-lbl">分鐘</div></div>'
@@ -1091,6 +1149,8 @@ function renderOne(child,isVivi){
       +'<div class="bar-pct" style="width:52px;font-size:9px;text-align:right;flex-shrink:0">'+x.label2+'</div></div>';
   }).join('');
 
+  // 計算休息時間（獨立，不納入各科統計）
+  var restMin=filtered.filter(function(r){return r.subjects&&r.subjects.split('、').indexOf('休息')>=0;}).reduce(function(s,r){return s+r.time;},0);
   var progBySubject={};ALL_SUBJECTS.forEach(function(s){progBySubject[s]=[];});
   filtered.forEach(function(r){
     if(!r.progress||!r.progress.trim()||!r.subjects)return;
@@ -1123,6 +1183,7 @@ function renderOne(child,isVivi){
   }).join('');
 
   document.getElementById('stats-'+child.toLowerCase()).innerHTML=topCard+trendHTML
+    +'<div class="card" style="margin-bottom:8px"><div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px;font-weight:700;color:#757575">☕ 休息時間</span><span style="font-size:14px;font-weight:800;color:#9e9e9e">'+(restMin>0?restMin+'分':'—')+'</span></div></div>'
     +'<div class="card"><div class="card-title">各科累計'+(isAll?'<span style="font-size:10px;color:#88bbdd;margin-left:4px;font-weight:600">相對比例</span>':'<span style="font-size:10px;color:#88bbdd;margin-left:4px;font-weight:600">達成率/佔比 綠＝達標</span>')+'</div>'+barsHTML+'</div>'
     +todayDetailHTML
     +'<div class="card"><div class="card-title">📝 進度紀錄</div>'+progHTML+'</div>';
@@ -1131,6 +1192,7 @@ function renderOne(child,isVivi){
 // 頁面載入時恢復狀態
 (async function(){
   loadTimerStateLocal();
+  flushQueue();
   await loadAllStats();
   // 如果有恢復的孩子，載入目標
   if(selectedChild){
