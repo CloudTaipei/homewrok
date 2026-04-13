@@ -1062,7 +1062,14 @@ async function markGoal(subject,unit,done,silent){
   // 存到 localStorage（確保不被 API 回傳覆蓋）
   saveGoalDoneLocal(selectedChild,subject,unit,done,doneAt);
   if(!silent) renderGoalsArea();
-  try{await fetch(url,{method:'GET',mode:'no-cors'});}catch(e){}
+  // 用 no-cors 送出，同時用 image 方式確保送達
+  try{
+    // 方法一：no-cors fetch
+    fetch(url,{method:'GET',mode:'no-cors'}).catch(function(){});
+    // 方法二：用 Image 送出（更可靠，iOS Safari 友善）
+    var img=new Image();
+    img.src=url+'&_='+Date.now();
+  }catch(e){}
 }
 
 function playDone(){
