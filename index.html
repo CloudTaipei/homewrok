@@ -542,6 +542,8 @@ async function loadGoalsForChild(){
       var local=existing.find(function(e){return e.subject===g.subject&&e.unit===g.unit;});
       if(local&&local.done&&!g.done){g.done=local.done;g.doneAt=local.doneAt;}
     });
+    // 套用 localStorage 的完成狀態（優先於 API 回傳）
+    loadGoalDoneLocal(selectedChild,newGoals);
     goalsData[selectedChild]=newGoals;
     renderGoalsArea();
     renderOtherSubjects();
@@ -1026,14 +1028,39 @@ async function flushQueue(){
   }catch(e){}
 }
 
+function saveGoalDoneLocal(child,subject,unit,done,doneAt){
+  try{
+    var key='goalDone_'+child;
+    var map=JSON.parse(localStorage.getItem(key)||'{}');
+    var gkey=subject+'::'+unit;
+    if(done) map[gkey]=doneAt||new Date().toLocaleDateString('zh-TW');
+    else delete map[gkey];
+    localStorage.setItem(key,JSON.stringify(map));
+  }catch(e){}
+}
+
+function loadGoalDoneLocal(child,goals){
+  try{
+    var key='goalDone_'+child;
+    var map=JSON.parse(localStorage.getItem(key)||'{}');
+    goals.forEach(function(g){
+      var gkey=g.subject+'::'+g.unit;
+      if(map[gkey]){g.done=true;g.doneAt=map[gkey];}
+    });
+  }catch(e){}
+}
+
 async function markGoal(subject,unit,done,silent){
   var action=done?'markDone':'unmarkDone';
   var url=SCRIPT_URL+'?action='+action+'&child='+encodeURIComponent(selectedChild)
     +'&subject='+encodeURIComponent(subject)+'&unit='+encodeURIComponent(unit);
-  // 樂觀更新
+  var doneAt=done?new Date().toLocaleDateString('zh-TW'):'';
+  // 樂觀更新 goalsData
   var goals=goalsData[selectedChild]||[];
   var g=goals.find(function(x){return x.subject===subject&&x.unit===unit;});
-  if(g){g.done=done;g.doneAt=done?new Date().toLocaleDateString('zh-TW'):'';}
+  if(g){g.done=done;g.doneAt=doneAt;}
+  // 存到 localStorage（確保不被 API 回傳覆蓋）
+  saveGoalDoneLocal(selectedChild,subject,unit,done,doneAt);
   if(!silent) renderGoalsArea();
   try{await fetch(url,{method:'GET',mode:'no-cors'});}catch(e){}
 }
