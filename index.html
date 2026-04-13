@@ -533,11 +533,20 @@ async function loadGoalsForChild(){
   try{
     var res=await fetch(SCRIPT_URL+'?action=readGoals&child='+encodeURIComponent(selectedChild)+'&t='+Date.now());
     var json=await res.json();
-    goalsData[selectedChild]=json.goals||[];
+    var newGoals=(json.goals||[]).filter(function(g){
+      return g.subject&&g.unit&&String(g.unit).trim().length>0&&String(g.unit).length<20;
+    });
+    // 保留本地已知的完成狀態（防止 no-cors 還沒生效時被覆蓋）
+    var existing=goalsData[selectedChild]||[];
+    newGoals.forEach(function(g){
+      var local=existing.find(function(e){return e.subject===g.subject&&e.unit===g.unit;});
+      if(local&&local.done&&!g.done){g.done=local.done;g.doneAt=local.doneAt;}
+    });
+    goalsData[selectedChild]=newGoals;
     renderGoalsArea();
     renderOtherSubjects();
   }catch(e){
-    goalsData[selectedChild]=[];
+    goalsData[selectedChild]=goalsData[selectedChild]||[];
     renderGoalsArea();
     renderOtherSubjects();
   }
