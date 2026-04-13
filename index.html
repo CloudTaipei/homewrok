@@ -1005,6 +1005,8 @@ function resetForm(){
   document.getElementById('ways-section').style.display=prevChild?'block':'none';
   document.getElementById('form-view').style.display='block';
   document.getElementById('success-view').style.display='none';
+  // 重新渲染目標方塊（顯示最新完成狀態）
+  if(prevChild) renderGoalsArea();
 }
 
 function jumpToToday(){
