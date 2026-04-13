@@ -525,32 +525,47 @@ function selectChild(n){
   renderTodayBanner();
 }
 
+function saveGoalsLocal(child,goals){
+  try{localStorage.setItem('goalsCache_'+child,JSON.stringify(goals));}catch(e){}
+}
+function loadGoalsLocal(child){
+  try{
+    var s=localStorage.getItem('goalsCache_'+child);
+    return s?JSON.parse(s):null;
+  }catch(e){return null;}
+}
+
 async function loadGoalsForChild(){
   if(!selectedChild) return;
-  // 每次選孩子都重新載入，不用快取
-  document.getElementById('goals-area').innerHTML='<div style="padding:1rem;text-align:center;color:#0088cc;font-size:13px;font-weight:600">載入目標中…</div>';
-  document.getElementById('goals-area').style.display='block';
+  // 先用快取立即顯示
+  var cached=loadGoalsLocal(selectedChild);
+  if(cached){
+    loadGoalDoneLocal(selectedChild,cached);
+    goalsData[selectedChild]=cached;
+    renderGoalsArea();
+    renderOtherSubjects();
+  } else {
+    document.getElementById('goals-area').innerHTML='<div style="padding:1rem;text-align:center;color:#0088cc;font-size:13px;font-weight:600">載入目標中…</div>';
+    document.getElementById('goals-area').style.display='block';
+  }
+  // 背景更新
   try{
     var res=await fetch(SCRIPT_URL+'?action=readGoals&child='+encodeURIComponent(selectedChild)+'&t='+Date.now());
     var json=await res.json();
     var newGoals=(json.goals||[]).filter(function(g){
       return g.subject&&g.unit&&String(g.unit).trim().length>0&&String(g.unit).length<20;
     });
-    // 保留本地已知的完成狀態（防止 no-cors 還沒生效時被覆蓋）
-    var existing=goalsData[selectedChild]||[];
-    newGoals.forEach(function(g){
-      var local=existing.find(function(e){return e.subject===g.subject&&e.unit===g.unit;});
-      if(local&&local.done&&!g.done){g.done=local.done;g.doneAt=local.doneAt;}
-    });
-    // 套用 localStorage 的完成狀態（優先於 API 回傳）
     loadGoalDoneLocal(selectedChild,newGoals);
     goalsData[selectedChild]=newGoals;
+    // 存到快取
+    saveGoalsLocal(selectedChild,newGoals);
     renderGoalsArea();
     renderOtherSubjects();
   }catch(e){
-    goalsData[selectedChild]=goalsData[selectedChild]||[];
-    renderGoalsArea();
-    renderOtherSubjects();
+    // 離線：用快取，已在上面顯示
+    if(!cached){
+      document.getElementById('goals-area').innerHTML='<div style="padding:1rem;text-align:center;color:#88bbdd;font-size:13px">離線中，目標已從快取載入</div>';
+    }
   }
 }
 
