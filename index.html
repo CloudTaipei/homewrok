@@ -660,12 +660,13 @@ function renderGoalsArea(){
       var isActive=activeSubject===subject&&activeUnit===g.unit;
       var bc=isActive?'active-timer':(g.done?doneClass:'');
       var se=subject.replace(/'/g,"\'"),ue=g.unit.replace(/'/g,"\'");
-      var recordMins=g.done?50:getUnitMinutes(g.subject,g.unit);
+      // 水位：已完成紀錄的累積 + 本機計時
+      var savedMins=getUnitMinsLocal(selectedChild,g.subject,g.unit);
       var timerKey=g.subject+'::'+g.unit;
       var timerData=unitTimers[timerKey];
-      var timerElapsed=timerData?(timerData.elapsed||timerData||0):0;
+      var timerElapsed=timerData?(timerData.elapsed||0):0;
       var timerMins=Math.floor(timerElapsed/60);
-      var uMins=Math.max(recordMins,timerMins);
+      var uMins=g.done?50:Math.min(49,savedMins+timerMins);
       var waterH=Math.min(64,Math.round(uMins/50*64));
       html+='<div class="unit-block '+sg+' '+bc+'" '
         +'draggable="true" '
@@ -1041,6 +1042,23 @@ async function flushQueue(){
       loadAllStats();
     }
   }catch(e){}
+}
+
+function saveUnitMins(child,subject,unit,mins){
+  try{
+    var key='unitMins_'+child;
+    var map=JSON.parse(localStorage.getItem(key)||'{}');
+    var gkey=subject+'::'+unit;
+    if(mins>0) map[gkey]=(map[gkey]||0)+mins;
+    localStorage.setItem(key,JSON.stringify(map));
+  }catch(e){}
+}
+function getUnitMinsLocal(child,subject,unit){
+  try{
+    var key='unitMins_'+child;
+    var map=JSON.parse(localStorage.getItem(key)||'{}');
+    return map[subject+'::'+unit]||0;
+  }catch(e){return 0;}
 }
 
 function saveGoalDoneLocal(child,subject,unit,done,doneAt){
