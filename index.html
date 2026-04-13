@@ -220,7 +220,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </style>
 </head>
 <body>
-<div class="page">
+<div id="net-status-bar" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;padding:8px 16px;font-size:13px;font-weight:700;align-items:center;justify-content:center;gap:8px;box-shadow:0 2px 8px rgba(0,0,0,.2)">
+  <span id="net-status-icon"></span>
+  <span id="net-status-msg" style="font-weight:400;font-size:12px"></span>
+</div>
+<div class="page" style="padding-top:env(safe-area-inset-top)">
 
   <div id="form-view">
     <div class="header">
@@ -369,6 +373,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <script>
+// 註冊 Service Worker
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('./sw.js').catch(function(e){console.log('SW 註冊失敗:',e);});
+  });
+}
 var SCRIPT_URL='https://script.google.com/macros/s/AKfycbwm2Zsoexr5DrEt_2gQQVPA1H1AUW0_gVPEsVLmQSu_h7MAZGdCoTSsh3aPZXtWEGb_/exec';
 var ALL_SUBJECTS=['國語－課內','國語－閱讀測驗','國語－古文閱讀測驗','國語－作文','數學－課內','數學－超前','自然','生物','化學','物理','英文單字','英文閱讀測驗','英文－課內','英文－超前','英文作文','學校作業','社會','資訊','音樂','課外閱讀'];
 var DAYS=['日','一','二','三','四','五','六'];
@@ -391,6 +401,53 @@ var statsPeriod='today',cachedData={},goalsData={};
 
 var now=new Date();
 document.getElementById('today').textContent=now.getFullYear()+'年'+(now.getMonth()+1)+'月'+now.getDate()+'日（週'+DAYS[now.getDay()]+'）';
+
+// 網路狀態監控
+var _statusTimer=null;
+function showNetStatus(icon,msg,bg,duration){
+  var bar=document.getElementById('net-status-bar');
+  var iconEl=document.getElementById('net-status-icon');
+  var msgEl=document.getElementById('net-status-msg');
+  if(!bar) return;
+  bar.style.background=bg;
+  bar.style.color='#fff';
+  iconEl.textContent=icon;
+  msgEl.textContent=msg;
+  bar.style.display='flex';
+  if(_statusTimer) clearTimeout(_statusTimer);
+  if(duration){
+    _statusTimer=setTimeout(function(){bar.style.display='none';},duration);
+  }
+}
+
+function updateOnlineStatus(){
+  var isOnline=navigator.onLine;
+  var queue=[];
+  try{queue=JSON.parse(localStorage.getItem('sendQueue')||'[]');}catch(e){}
+  if(!isOnline){
+    showNetStatus('📵','離線中 — 學習紀錄已暫存，連線後自動上傳','#ff8f00',null);
+  } else {
+    if(queue.length>0){
+      showNetStatus('📶','連線恢復，正在上傳暫存資料…','#0088cc',null);
+      flushQueue().then(function(){
+        var remaining=[];
+        try{remaining=JSON.parse(localStorage.getItem('sendQueue')||'[]');}catch(e){}
+        if(remaining.length===0){
+          showNetStatus('✅','資料上傳成功！','#43a047',3000);
+        } else {
+          showNetStatus('⚠️','部分資料上傳失敗，請稍後重試','#f57c00',4000);
+        }
+      });
+    } else {
+      var bar=document.getElementById('net-status-bar');
+      if(bar&&bar.style.display!=='none'&&bar.style.background!=='rgb(67, 160, 71)'){
+        bar.style.display='none';
+      }
+    }
+  }
+}
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
 
 // 背景補時：iOS Safari 用 pagehide/pageshow + localStorage 時間戳記
 function saveLeaveTime(){
@@ -937,6 +994,7 @@ async function sendRecord(subject,minutes,progress,finishKey){
 }
 
 async function flushQueue(){
+  if(!navigator.onLine) return Promise.resolve();
   try{
     var queue=JSON.parse(localStorage.getItem('sendQueue')||'[]');
     if(!queue.length) return;
@@ -944,9 +1002,18 @@ async function flushQueue(){
     for(var i=0;i<queue.length;i++){
       try{
         await fetch(SCRIPT_URL+'?data='+encodeURIComponent(JSON.stringify(queue[i])),{method:'GET',mode:'no-cors'});
-      }catch(e){remaining.push(queue[i]);}
+        // 送出成功，不加入 remaining
+      }catch(e){
+        remaining.push(queue[i]); // 失敗保留
+      }
     }
     localStorage.setItem('sendQueue',JSON.stringify(remaining));
+    if(remaining.length===0&&queue.length>0){
+      // 全部送出成功
+      delete cachedData['Jung'];
+      delete cachedData['Vivi'];
+      loadAllStats();
+    }
   }catch(e){}
 }
 
@@ -1255,6 +1322,7 @@ function renderOne(child,isVivi){
 // 頁面載入時恢復狀態
 (async function(){
   loadTimerStateLocal();
+  updateOnlineStatus();
   flushQueue();
   await loadAllStats();
   // 設定日期查詢範圍
